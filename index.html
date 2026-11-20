@@ -257,13 +257,14 @@ const pNum=v=>{if(typeof v=="number")return v;const s=String(v??"").replace(/[^\
 const MK=[["m","Bulan","month",1],["y","Tahun","num",1],["saldo","Saldo awal","rp",1],["ket","Keterangan","text"]];
 const IMP={petty:{t:"Petty Cash",k:[["date","Tanggal","date",1],["ket","Keterangan","text",1],["cin","Cash In","rp"],["cout","Cash Out","rp"]]},emoney:{t:"E-Money Mobil",k:MK}};
 for(const s of Object.keys(G))IMP[s]={t:G[s].t.replace(/^\S+\s/,""),k:G[s].f};
+IMP.po={t:"Purchase Order",k:[["no","No. PO","text",1],["tgl","Tanggal","date",1],["vendor","Vendor","text",1],["eta","ETA","date"],["status","Status","sel",0,PS],["cat","Catatan","text"],["nama","Barang","text",1],["spek","Spesifikasi","text"],["qty","Qty","num"],["sat","Satuan","text"]]};
 function csv(t){const L=t.split(/\r?\n/).filter(x=>x.trim()!=="");const d=["\t",";",","].find(x=>(L[0]||"").includes(x))||",";
 return L.map(l=>{const o=[];let c="",q=0;for(const ch of l){if(ch=='"')q=!q;else if(ch==d&&!q){o.push(c);c=""}else c+=ch}o.push(c);return o})}
 function impBuild(s,raw){const K=IMP[s].k,low=x=>String(x??"").trim().toLowerCase();let rows=raw.filter(r=>r.some(c=>String(c??"").trim()!==""));
 let idx=K.map((_,i)=>i);const h=rows[0]?rows[0].map(low):[];
 const hm=K.map(([k,l])=>h.findIndex(x=>x.length>2&&(x==k||low(l).startsWith(x))));
 if(hm.some(i=>i>=0)){idx=hm;rows=rows.slice(1)}
-const dk=o=>s=="emoney"?o.m+"|"+o.y:K.map(([k])=>o[k]??"").join("|"),seen=new Set(D[s].map(dk)),out=[];let prev="";
+const dk=o=>s=="emoney"?o.m+"|"+o.y:s=="po"?o.no:K.map(([k])=>o[k]??"").join("|"),seen=new Set(D[s].map(s=="po"?r=>r.no:dk)),out=[];let prev="";
 rows.forEach(r=>{const g=i=>i>=0?r[i]:"",o={},er=[];
 if(s=="log"&&/^\d{4}$/.test(String(g(idx[0])).trim())&&!String(g(idx[1])??"").trim())return;
 K.forEach(([k,l,t,rq,op],j)=>{let v=g(idx[j]);if(typeof v=="string")v=v.trim();
@@ -275,7 +276,7 @@ else v=String(v??"").trim();
 if(rq&&(v===""||v==null)&&!er.length)er.push(l+" wajib diisi");o[k]=v});
 if(s=="log")o.kat=katOf(o.ket)||(idx[2]<0?"Lainnya":o.kat);
 if(s=="petty"){o.cin=+o.cin||0;o.cout=+o.cout||0;if(!o.cin&&!o.cout)er.push("Cash In/Out kosong");if(o.cin&&o.cout)er.push("Isi salah satu saja")}
-let dup=false;if(!er.length){const key=dk(o);dup=seen.has(key);seen.add(key)}
+let dup=false;if(!er.length){const key=dk(o);dup=seen.has(key);if(s!="po")seen.add(key)}
 out.push({o,er,dup})});return out}
 let IM={s:"log",txt:"",raw:null,rows:null};
 function impPrev(){const raw=IM.txt.trim()?csv(IM.txt):(IM.raw||[]);if(!raw.length)return toast("Tempel data atau pilih file dulu");IM.rows=impBuild(IM.s,raw);render()}
@@ -284,19 +285,20 @@ if(!x){const r=new FileReader();r.onload=()=>{IM.txt=String(r.result);IM.raw=nul
 if(typeof XLSX=="undefined")return toast("Pustaka Excel belum termuat. Simpan file sebagai CSV, atau coba lagi saat online");
 f.arrayBuffer().then(b=>{const w=XLSX.read(b,{type:"array",cellDates:true});IM.raw=XLSX.utils.sheet_to_json(w.Sheets[w.SheetNames[0]],{header:1,raw:true,defval:""});IM.txt="";impPrev()}).catch(()=>toast("File tidak bisa dibaca"))}
 async function impRun(){const ok=IM.rows.filter(x=>!x.er.length&&!x.dup),s=IM.s;
-try{for(const [i,x] of ok.entries())await save(s,{...x.o,id:uid(),createdAt:Date.now()+i})}catch(e){return toast("Import gagal")}
-toast(ok.length+" baris berhasil diimpor ✓");IM.rows=null;IM.txt="";IM.raw=null;go(s)}
+let n=ok.length,u="baris";
+try{if(s=="po"){const g=new Map();ok.forEach(x=>{const o=x.o;if(!g.has(o.no))g.set(o.no,{no:o.no,tgl:o.tgl,vendor:o.vendor,eta:o.eta||"",status:o.status,cat:o.cat||"",items:[]});g.get(o.no).items.push({nama:o.nama,spek:o.spek||"",qty:o.qty===""?0:o.qty,sat:o.sat||""})});let i=0;for(const p of g.values())await save("po",{...p,id:uid(),createdAt:Date.now()+i++});n=g.size;u="PO"}else for(const [i,x] of ok.entries())await save(s,{...x.o,id:uid(),createdAt:Date.now()+i})}catch(e){return toast("Import gagal")}
+toast(n+" "+u+" berhasil diimpor ✓");IM.rows=null;IM.txt="";IM.raw=null;go(s)}
 function iv(t,v){return v===""||v==null?"-":t=="date"?fd(v):t=="month"?MN[v]:t=="rp"?rp(v):esc(v)}
 function impPage(){const sp=IMP[IM.s],r=IM.rows,ok=r?r.filter(x=>!x.er.length&&!x.dup).length:0;
 return `<div class="head"><h1>📥 Import dan Export</h1><button class="btn" onclick="expAll()">⬇️ Export semua data (Excel)</button></div><div class="card"><label>Import ke modul</label><select onchange="IM.s=this.value;IM.rows=null;render()">${Object.keys(IMP).map(k=>`<option value="${k}" ${IM.s==k?"selected":""}>${IMP[k].t}</option>`).join("")}</select>
-<p class="note">Urutan kolom: ${sp.k.map(x=>x[1]+(x[3]?"*":"")).join(", ")}. Baris judul kolom dikenali otomatis. Tanggal boleh 2026-01-09, 09/01/2026, atau “Friday, 09 January 2026”. Purchase Order (multi barang) belum bisa diimpor.</p>
+<p class="note">Urutan kolom: ${sp.k.map(x=>x[1]+(x[3]?"*":"")).join(", ")}. Baris judul kolom dikenali otomatis. Tanggal boleh 2026-01-09, 09/01/2026, atau “Friday, 09 January 2026”. Untuk Purchase Order, satu baris berisi satu barang; baris dengan No. PO yang sama digabung menjadi satu PO (sama seperti hasil Export Excel PO). No. PO yang sudah ada dilewati.</p>
 <label>Tempel dari Excel atau Sheets</label><textarea rows="6" oninput="IM.txt=this.value">${esc(IM.txt)}</textarea>
 <label>atau pilih file (.csv, .xlsx)</label><input type="file" accept=".csv,.txt,.xlsx,.xls" onchange="impFile(this.files[0])">
 <div class="acts"><button class="btn" onclick="impPrev()">Lihat preview</button></div></div>
 ${r?`<div class="card" style="margin-top:16px"><h3>Preview</h3><p>${bd(ok+" siap diimpor","ok")} ${bd(r.filter(x=>x.dup).length+" duplikat (dilewati)","warn")} ${bd(r.filter(x=>x.er.length).length+" error (dilewati)","bad")}</p>
 <div class="tw"><table><tr>${sp.k.map(x=>`<th>${x[1]}</th>`).join("")}<th>Status</th></tr>${r.slice(0,100).map(x=>`<tr>${sp.k.map(([k,l,t])=>`<td>${iv(t,x.o[k])}</td>`).join("")}<td>${x.er.length?bd(x.er.join(", "),"bad"):x.dup?bd("Duplikat","warn"):bd("OK","ok")}</td></tr>`).join("")}</table></div>
 ${r.length>100?`<p class="note">Menampilkan 100 baris pertama dari ${r.length}.</p>`:""}
-<div class="acts"><button class="btn ghost" onclick="IM.rows=null;render()">Batal</button><button class="btn" ${ok?"":"disabled"} onclick="impRun()">Impor ${ok} baris</button></div></div>`:""}`}
+<div class="acts"><button class="btn ghost" onclick="IM.rows=null;render()">Batal</button><button class="btn" ${ok?"":"disabled"} onclick="impRun()">Impor ${IM.s=="po"?new Set(r.filter(x=>!x.er.length&&!x.dup).map(x=>x.o.no)).size+" PO ("+ok+" barang)":ok+" baris"}</button></div></div>`:""}`}
 
 /* ---------- Sync Status ---------- */
 function syncPage(){const nm=s=>s=="po"?"Purchase Order":IMP[s].t;let tot=0;
