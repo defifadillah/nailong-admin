@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nailong Admin</title>
+<meta name="theme-color" content="#FFD84D">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FFF8EC;--panel:#FFFDF8;--ink:#4A3F4F;--mute:#8C7F92;--pink:#FFD6E4;--lav:#E3D9FF;--yel:#FFE98A;--blue:#D3EBFF;--peach:#FFE0CC;--line:#F1E6D8;--acc:#F79BB8;--accink:#7A2E4B;--shadow:0 6px 18px rgba(180,140,160,.18);--in:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2A2330;--panel:#352D3C;--ink:#F6EEF8;--mute:#BDB0C4;--pink:#5A3447;--lav:#42386A;--yel:#5E5320;--blue:#2F4760;--peach:#5C4033;--line:#463C4F;--acc:#F79BB8;--accink:#FFD6E4;--shadow:0 6px 18px rgba(0,0,0,.35);--in:#2A2330}}
+:root[data-theme="dark"]{--bg:#2A2330;--panel:#352D3C;--ink:#F6EEF8;--mute:#BDB0C4;--pink:#5A3447;--lav:#42386A;--yel:#5E5320;--blue:#2F4760;--peach:#5C4033;--line:#463C4F;--acc:#F79BB8;--accink:#FFD6E4;--shadow:0 6px 18px rgba(0,0,0,.35);--in:#2A2330}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 Nunito,"Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:Fredoka,"Segoe UI Rounded","Trebuchet MS",sans-serif;font-weight:600;margin:0}
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+nav{background:var(--panel);border-right:2px dashed var(--line);padding:18px 14px;position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:14px;font:600 20px Fredoka,sans-serif}
+nav small{display:block;margin:14px 8px 4px;color:var(--mute);font-weight:700;font-size:12px}
+nav button{display:flex;width:100%;align-items:center;gap:10px;border:0;background:none;color:var(--ink);font:600 14px Nunito,sans-serif;padding:8px 10px;border-radius:14px;cursor:pointer;text-align:left}
+nav button:hover{background:var(--lav)}nav button.on{background:var(--pink)}
+nav button.soon{opacity:.55}nav .tag{margin-left:auto;font-size:10px;background:var(--yel);padding:1px 7px;border-radius:99px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+main{padding:28px 32px;max-width:1000px;width:100%}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.card{background:var(--panel);border-radius:22px;padding:18px;box-shadow:var(--shadow)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.stat b{display:block;font:600 24px Fredoka,sans-serif;margin-top:2px}.stat span{color:var(--mute);font-size:13px}
+.ico{font-size:22px}
+.btn{border:0;border-radius:99px;padding:9px 18px;font:700 14px Nunito,sans-serif;cursor:pointer;background:var(--acc);color:#4B1630}
+.btn.ghost{background:var(--lav);color:var(--ink)}.btn.sm{padding:4px 12px;font-size:13px}
+.btn:active{transform:scale(.96)}
+input,select,textarea{width:100%;border:2px solid var(--line);background:var(--in);color:var(--ink);border-radius:14px;padding:8px 12px;font:inherit}
+label{display:block;font-weight:700;font-size:13px;margin:10px 0 3px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}.bar select,.bar input{width:auto}
+.tw{overflow-x:auto;border-radius:18px}
+table{width:100%;border-collapse:collapse;background:var(--panel)}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{background:var(--lav);font-weight:700;font-size:13px}td.n,th.n{text-align:right}
+.in{color:#2E8B57}.out{color:#C2410C}
+.empty{text-align:center;padding:36px 12px;color:var(--mute)}
+dialog{border:0;border-radius:24px;padding:22px;width:min(420px,92vw);background:var(--panel);color:var(--ink);box-shadow:var(--shadow)}
+dialog::backdrop{background:rgba(74,63,79,.4)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.acts{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);background:var(--ink);color:var(--bg);padding:10px 20px;border-radius:99px;opacity:0;transition:.25s;pointer-events:none;font-weight:700}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.hello{display:flex;align-items:center;gap:18px;background:var(--yel);margin-bottom:16px}
+.hello svg{flex:none;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-5px)}}
+.note{font-size:13px;color:var(--mute);margin-top:14px}
+textarea{resize:vertical}
+dialog{max-height:92vh;overflow:auto}dialog.w{width:min(680px,94vw)}
+.it{display:grid;grid-template-columns:2fr 2fr 70px 80px auto;gap:6px;margin-bottom:6px}
+.rm{display:flex;gap:10px;align-items:center;width:100%;border:0;background:var(--bg);color:var(--ink);font:inherit;padding:9px 12px;border-radius:14px;cursor:pointer;text-align:left;margin-bottom:6px}
+@media (max-width:600px){.it{grid-template-columns:1fr 1fr}}
+#c3{position:fixed;bottom:0;left:240px;width:calc(100% - 240px);height:170px;pointer-events:none;z-index:1}#toast{z-index:10}#main{padding-bottom:170px}
+@media (max-width:820px){#c3{left:0;width:100%;height:130px}#main{padding-bottom:140px}}
+@media (prefers-reduced-motion:reduce){.hello svg{animation:none}#toast{transition:none}}
+@media (max-width:820px){.app{grid-template-columns:1fr}nav{position:static;max-height:none;border-right:0;border-bottom:2px dashed var(--line)}main{padding:18px}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+</head>
+<body>
+<div class="app"><nav id="nav"></nav><main id="main"></main></div>
+<dialog id="dlg"></dialog><div id="toast" role="status"></div>
+<script>
+const MN=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+const rp=n=>"Rp "+new Intl.NumberFormat("id-ID").format(Math.round(n||0));
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const now=new Date();
+let page="dash",fm=now.getMonth(),fy=now.getFullYear();
+const D={petty:[],emoney:[],po:[],tugas:[],service:[],pajak:[],aktiva:[],perl:[],log:[]};
+const NAV=[["MAIN MENU",[["dash","🏠","Dashboard"],["petty","👛","Petty Cash"],["emoney","🚗","E-Money Mobil"],["po","📦","Purchase Order"],["tugas","📋","Tugas Tambahan"]]],
+["VEHICLE MANAGEMENT",[["service","🔧","Service Kendaraan"],["pajak","🧾","Pajak Kendaraan"]]],
+["OFFICE MANAGEMENT",[["aktiva","🏢","Aktiva Tetap"],["perl","🖇️","Perlengkapan Kantor"],["log","📝","Catatan Pemeliharaan"]]],
+["REPORTING",[["lap","📊","Report Center"]]],
+["SETTINGS",[["imp","📥","Import dan Export"]]]];
+
+/* ---------- storage: IndexedDB, falls back to memory ---------- */
+let db=null,persist=true;
+function openDB(){return new Promise(res=>{try{const r=indexedDB.open("nailong-admin",4);
+r.onupgradeneeded=()=>{for(const s of Object.keys(D))if(!r.result.objectStoreNames.contains(s))r.result.createObjectStore(s,{keyPath:"id"});if(r.result.objectStoreNames.contains("rotol"))r.result.deleteObjectStore("rotol")};
+r.onsuccess=()=>{db=r.result;res()};r.onerror=()=>{persist=false;res()}}catch(e){persist=false;res()}})}
+const tx=(s,m)=>db.transaction(s,m).objectStore(s);
+const req=r=>new Promise((ok,no)=>{r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+async function loadAll(){if(!db)return;for(const s of Object.keys(D)){try{D[s]=await req(tx(s,"readonly").getAll())}catch(e){persist=false}}}
+async function save(s,o){o.updatedAt=Date.now();o.synced=false;const i=D[s].findIndex(x=>x.id===o.id);i<0?D[s].push(o):D[s][i]=o;
+if(db)try{await req(tx(s,"readwrite").put(o))}catch(e){toast("Gagal menyimpan ke penyimpanan lokal")}}
+async function remove(s,id){D[s]=D[s].filter(x=>x.id!==id);if(db)try{await req(tx(s,"readwrite").delete(id))}catch(e){}}
+const uid=()=>crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2);
+
+/* ---------- ui helpers ---------- */
+let tt;function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2200)}
+function dialog(html){const d=$("#dlg");d.className="";d.innerHTML=html;d.showModal();return d}
+function confirmDel(msg,fn){dialog(`<h3>Hapus data?</h3><p>${msg}</p><div class="acts"><button class="btn ghost" onclick="$('#dlg').close()">Batal</button><button class="btn" id="yes">Ya, hapus</button></div>`);
+$("#yes").onclick=async()=>{await fn();$("#dlg").close();toast("Data dihapus");render()}}
+function mascot(s=96){return `<svg width="${s}" height="${s}" viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="60" rx="34" ry="32" fill="#FFD84D"/><ellipse cx="50" cy="68" rx="20" ry="19" fill="#FFF0A8"/><path d="M40 29l5-10 5 10zM52 27l5-10 5 11z" fill="#FFC21F"/><circle cx="38" cy="52" r="6" fill="#4A3F4F"/><circle cx="62" cy="52" r="6" fill="#4A3F4F"/><circle cx="40" cy="50" r="2" fill="#fff"/><circle cx="64" cy="50" r="2" fill="#fff"/><ellipse cx="29" cy="62" rx="5" ry="3" fill="#FFB3C7"/><ellipse cx="71" cy="62" rx="5" ry="3" fill="#FFB3C7"/><path d="M44 62q6 6 12 0" stroke="#4A3F4F" stroke-width="2.5" fill="none" stroke-linecap="round"/><ellipse cx="18" cy="68" rx="7" ry="5" fill="#FFD84D"/><ellipse cx="82" cy="68" rx="7" ry="5" fill="#FFD84D"/><ellipse cx="38" cy="92" rx="9" ry="5" fill="#FFC21F"/><ellipse cx="62" cy="92" rx="9" ry="5" fill="#FFC21F"/></svg>`}
+const yearOpts=()=>{let o="";for(let y=now.getFullYear()+1;y>=now.getFullYear()-6;y--)o+=`<option ${y==fy?"selected":""}>${y}</option>`;return o};
+const monthOpts=(all)=>(all?`<option value="-1">Semua bulan</option>`:"")+MN.map((m,i)=>`<option value="${i}" ${i==fm?"selected":""}>${m}</option>`).join("");
+
+/* ---------- navigation ---------- */
+function drawNav(){$("#nav").innerHTML=`<div class="brand">${mascot(36)} Nailong Admin</div>`+NAV.map(([g,items])=>`<small>${g}</small>`+items.map(([k,i,t,tag])=>`<button class="${page==k?"on":""} ${tag?"soon":""}" onclick="go('${k}')"><span class="ico">${i}</span>${t}${tag?`<span class="tag">${tag}</span>`:""}</button>`).join("")).join("")}
+function go(p){page=p;render()}
+function render(){drawNav();const m=$("#main");
+if(page=="dash")m.innerHTML=dash();else if(page=="petty")m.innerHTML=petty();else if(page=="emoney")m.innerHTML=monthly(page);else if(page=="po")m.innerHTML=poPage();else if(page=="aktiva")m.innerHTML=aktPage();else if(G[page])m.innerHTML=gen(page);else if(page=="lap")m.innerHTML=lapPage();else if(page=="imp")m.innerHTML=impPage();else if(page=="sync")m.innerHTML=syncPage();
+else{const it=NAV.flatMap(g=>g[1]).find(x=>x[0]==page);m.innerHTML=`<div class="card empty"><div style="font-size:48px">${it[1]}</div><h2>${it[2]}</h2><p>Modul ini belum dibuat dan dijadwalkan di ${it[3]}.</p></div>`}
+exportBtn();window.scrollTo(0,0);if(window.charGo)charGo(page)}
+
+/* ---------- dashboard ---------- */
+function pettySummary(m,y){const rows=D.petty.filter(r=>+r.date.slice(5,7)-1==m&&+r.date.slice(0,4)==y);
+const ci=rows.reduce((a,r)=>a+(+r.cin||0),0),co=rows.reduce((a,r)=>a+(+r.cout||0),0);
+const bal=D.petty.reduce((a,r)=>a+(+r.cin||0)-(+r.cout||0),0);return{ci,co,bal}}
+function startBal(s){const r=D[s].find(x=>x.m==now.getMonth()&&x.y==now.getFullYear());return r?rp(r.saldo):"Belum diisi"}
+function dash(){const p=pettySummary(now.getMonth(),now.getFullYear());
+return `<div class="card hello">${mascot(88)}<div><h1>Halo! Hari ini ${now.getDate()} ${MN[now.getMonth()]} ${now.getFullYear()}</h1><p style="margin:4px 0 0">Mulai dari mencatat Petty Cash, ya.</p></div></div>
+<div class="grid">
+<div class="card stat" style="background:var(--blue)"><span>👛 Cash In bulan ini</span><b class="in">${rp(p.ci)}</b></div>
+<div class="card stat" style="background:var(--peach)"><span>💸 Cash Out bulan ini</span><b class="out">${rp(p.co)}</b></div>
+<div class="card stat" style="background:var(--pink)"><span>💖 Saldo Petty Cash</span><b>${rp(p.bal)}</b></div>
+<div class="card stat" style="background:var(--lav)"><span>🚗 Saldo awal E-Money</span><b>${startBal("emoney")}</b></div>
+</div>
+${dash2()}
+${persist?"":`<p class="note">Penyimpanan lokal tidak tersedia di browser ini, jadi data hilang saat halaman ditutup.</p>`}`}
+
+/* ---------- petty cash ---------- */
+function petty(){const all=[...D.petty].sort((a,b)=>a.date.localeCompare(b.date)||a.createdAt-b.createdAt);let bal=0;
+const withBal=all.map(r=>({...r,bal:(bal+=(+r.cin||0)-(+r.cout||0))}));
+const rows=withBal.filter(r=>+r.date.slice(0,4)==fy&&(fm<0||+r.date.slice(5,7)-1==fm));
+const ci=rows.reduce((a,r)=>a+(+r.cin||0),0),co=rows.reduce((a,r)=>a+(+r.cout||0),0);
+return `<div class="head"><h1>👛 Petty Cash</h1><button class="btn" onclick="pForm()">+ Tambah transaksi</button></div>
+<div class="bar"><select onchange="fm=+this.value;render()">${monthOpts(1)}</select><select onchange="fy=+this.value;render()">${yearOpts()}</select></div>
+<div class="grid" style="margin-bottom:14px"><div class="card stat"><span>Total Cash In</span><b class="in">${rp(ci)}</b></div><div class="card stat"><span>Total Cash Out</span><b class="out">${rp(co)}</b></div><div class="card stat"><span>Saldo akhir</span><b>${rp(rows.length?rows[rows.length-1].bal:bal)}</b></div></div>
+${rows.length?`<div class="tw"><table><tr><th>Tanggal</th><th>Keterangan</th><th class="n">Cash In</th><th class="n">Cash Out</th><th class="n">Saldo</th><th></th></tr>${rows.map(r=>`<tr><td>${r.date.split("-").reverse().join("/")}</td><td style="white-space:normal">${esc(r.ket)}</td><td class="n in">${r.cin?rp(r.cin):""}</td><td class="n out">${r.cout?rp(r.cout):""}</td><td class="n">${rp(r.bal)}</td><td><button class="btn ghost sm" onclick="pForm('${r.id}')">Edit</button> <button class="btn ghost sm" onclick="pDel('${r.id}')">Hapus</button></td></tr>`).join("")}</table></div>`:`<div class="card empty">${mascot(70)}<p>Belum ada transaksi di periode ini.</p></div>`}
+<div class="card" style="margin-top:16px;background:var(--pink)"><h3>Ringkasan periode</h3><div class="grid" style="margin-top:10px"><div class="stat"><span>Total Cash In</span><b class="in">${rp(ci)}</b></div><div class="stat"><span>Total Cash Out</span><b class="out">${rp(co)}</b></div><div class="stat"><span>Pengeluaran Keseluruhan</span><b class="out">${rp(co)}</b></div><div class="stat"><span>Saldo Akhir</span><b>${rp(rows.length?rows[rows.length-1].bal:bal)}</b></div></div></div><p class="note">Saldo dihitung berurutan dari seluruh transaksi, jadi saldo awal bulan mengikuti bulan sebelumnya.</p>`}
+function pForm(id){const r=D.petty.find(x=>x.id==id)||{date:iso(),ket:"",cin:"",cout:""};
+dialog(`<h3>${id?"Edit":"Tambah"} transaksi</h3><label>Tanggal</label><input type="date" id="f1" value="${r.date}"><label>Keterangan</label><input id="f2" value="${esc(r.ket)}"><div class="row2"><div><label>Cash In</label><input type="number" min="0" id="f3" value="${r.cin}"></div><div><label>Cash Out</label><input type="number" min="0" id="f4" value="${r.cout}"></div></div><div class="acts"><button class="btn ghost" onclick="$('#dlg').close()">Batal</button><button class="btn" id="ok">Simpan</button></div>`);
+$("#ok").onclick=async()=>{const date=$("#f1").value,ket=$("#f2").value.trim(),cin=+$("#f3").value||0,cout=+$("#f4").value||0;
+if(!date||!ket)return toast("Tanggal dan keterangan wajib diisi");if(!cin&&!cout)return toast("Isi Cash In atau Cash Out");if(cin&&cout)return toast("Isi salah satu saja: Cash In atau Cash Out");
+await save("petty",{...r,id:r.id||uid(),createdAt:r.createdAt||Date.now(),date,ket,cin,cout});$("#dlg").close();toast("Tersimpan ✓");render()}}
+function pDel(id){const r=D.petty.find(x=>x.id==id);confirmDel(`Transaksi "${esc(r.ket)}" akan dihapus.`,()=>remove("petty",id))}
+
+/* ---------- e-money & ro tol (saldo awal bulanan) ---------- */
+const MT={emoney:["🚗","E-Money Mobil"]};
+function monthly(s){const rows=D[s].filter(r=>r.y==fy).sort((a,b)=>b.m-a.m);
+return `<div class="head"><h1>${MT[s][0]} ${MT[s][1]}</h1><button class="btn" onclick="mForm('${s}')">+ Tambah saldo awal</button></div>
+<div class="bar"><select onchange="fy=+this.value;render()">${yearOpts()}</select></div>
+${rows.length?`<div class="tw"><table><tr><th>Bulan</th><th>Tahun</th><th class="n">Saldo awal</th><th>Keterangan</th><th></th></tr>${rows.map(r=>`<tr><td>${MN[r.m]}</td><td>${r.y}</td><td class="n">${rp(r.saldo)}</td><td style="white-space:normal">${esc(r.ket)}</td><td><button class="btn ghost sm" onclick="mForm('${s}','${r.id}')">Edit</button> <button class="btn ghost sm" onclick="mDel('${s}','${r.id}')">Hapus</button></td></tr>`).join("")}</table></div>`:`<div class="card empty">${mascot(70)}<p>Belum ada saldo awal untuk ${fy}.</p></div>`}`}
+function mForm(s,id){const r=D[s].find(x=>x.id==id)||{m:now.getMonth(),y:fy,saldo:"",ket:""};
+dialog(`<h3>${id?"Edit":"Tambah"} saldo awal ${MT[s][1]}</h3><div class="row2"><div><label>Bulan</label><select id="f1">${MN.map((m,i)=>`<option value="${i}" ${i==r.m?"selected":""}>${m}</option>`).join("")}</select></div><div><label>Tahun</label><input type="number" id="f2" value="${r.y}"></div></div><label>Saldo awal</label><input type="number" min="0" id="f3" value="${r.saldo}"><label>Keterangan</label><input id="f4" value="${esc(r.ket)}"><div class="acts"><button class="btn ghost" onclick="$('#dlg').close()">Batal</button><button class="btn" id="ok">Simpan</button></div>`);
+$("#ok").onclick=async()=>{const m=+$("#f1").value,y=+$("#f2").value,saldo=$("#f3").value;
+if(!y||saldo==="")return toast("Tahun dan saldo awal wajib diisi");
+if(D[s].some(x=>x.m==m&&x.y==y&&x.id!=r.id))return toast(`${MN[m]} ${y} sudah ada. Edit data yang lama.`);
+await save(s,{...r,id:r.id||uid(),createdAt:r.createdAt||Date.now(),m,y,saldo:+saldo,ket:$("#f4").value.trim()});fy=y;$("#dlg").close();toast("Tersimpan ✓");render()}}
+function mDel(s,id){const r=D[s].find(x=>x.id==id);confirmDel(`Saldo awal ${MN[r.m]} ${r.y} akan dihapus.`,()=>remove(s,id))}
+
+/* ---------- Tahap 2-3: helpers ---------- */
+const iso=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const dl=s=>s?Math.round((new Date(s+"T00:00:00")-new Date(iso()+"T00:00:00"))/864e5):null;
+const fd=s=>s?s.split("-").reverse().join("/"):"-";
+const BC={ok:"#BFEFD2",warn:"#FFE98A",bad:"#FFB4A8",neu:"#E3D9FF"};
+const bd=(t,c)=>t?`<span style="background:${BC[c||"neu"]};color:#4A3F4F;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:700">${esc(t)}</span>`:"";
+const bf=x=>x?bd(x[0],x[1]):"";
+function due(d,w,late){if(d==null)return null;if(d<0)return [late+" "+(-d)+" hari","bad"];if(d<=w)return [d==0?"Hari ini":"H-"+d,"warn"];return null}
+const OPEN=["Menunggu kedatangan","Dalam proses"];
+const poFlag=r=>OPEN.includes(r.status)?due(dl(r.eta),3,"Terlambat"):null;
+
+/* ---------- modul generik: Tugas, Service, Pajak, Aktiva, Perlengkapan ---------- */
+const G={
+tugas:{t:"📋 Tugas Tambahan",a:"Tambah tugas",sk:"status",def:"Aktif",dk:"tgl",sort:["dl",1],
+f:[["tgl","Tanggal diberikan","date",1],["judul","Judul tugas","text",1],["detail","Detail pekerjaan","area"],["pemberi","Pemberi tugas","text"],["dl","Deadline","date"],["prio","Prioritas","sel",0,["Rendah","Sedang","Tinggi"]],["status","Status","sel",0,["Belum dikerjakan","Sedang dikerjakan","Menunggu informasi","Selesai"]],["selesai","Tanggal selesai","date"],["cat","Catatan","area"]],
+cols:["tgl","judul","pemberi","dl","prio","status","selesai"],fl:r=>r.status!="Selesai"?due(dl(r.dl),3,"Terlambat"):null},
+service:{t:"🔧 Service Kendaraan",a:"Tambah service",sort:["tgl",-1],def:"Semua",
+f:[["nama","Nama kendaraan","text",1],["plat","Nomor polisi","text",1],["tgl","Tanggal service terakhir","date",1],["jenis","Jenis service","text"],["km","Kilometer saat service","num"],["next","Estimasi service berikutnya (tanggal)","date"],["nextKm","Estimasi service berikutnya (km)","num"],["kmNow","Kilometer saat ini (untuk pengingat)","num"],["cat","Catatan","area"]],
+cols:["nama","plat","tgl","jenis","km","next","nextKm"],
+fl:r=>{if(D.service.some(x=>x.plat==r.plat&&x.tgl>r.tgl))return null;const a=due(dl(r.next),14,"Lewat");let b=null;
+if(r.nextKm&&r.kmNow){const k=r.nextKm-r.kmNow;b=k<=0?["Lewat "+(-k)+" km","bad"]:k<=500?[k+" km lagi","warn"]:null}return b&&b[1]=="bad"?b:a||b}},
+pajak:{t:"🧾 Pajak Kendaraan",a:"Tambah pajak",sk:"status",def:"Semua",sort:["due",1],
+f:[["nama","Nama kendaraan","text",1],["plat","Nomor polisi","text",1],["jenis","Jenis pajak","text"],["due","Tanggal jatuh tempo","date",1],["biaya","Biaya pajak","rp"],["status","Status pembayaran","sel",0,["Belum dibayar","Sudah dibayar"]],["cat","Catatan","area"]],
+cols:["nama","plat","jenis","due","biaya","status"],fl:r=>r.status!="Sudah dibayar"?due(dl(r.due),30,"Lewat"):null},
+aktiva:{t:"🏢 Aktiva Tetap",a:"Tambah aset",sk:"kondisi",def:"Semua",sort:["tglp",-1],
+f:[["nama","Nama aset","text",1],["kode","Kode aset","text",1],["tglp","Tanggal perolehan","date"],["harga","Harga perolehan","rp"],["lok","Lokasi","text"],["kondisi","Kondisi","sel",0,["Baik","Rusak ringan","Rusak berat"]],["thn","Tahun pencatatan","num"],["ket","Keterangan","area"]],
+cols:["nama","kode","tglp","harga","lok","kondisi","thn"]},
+perl:{t:"🖇️ Perlengkapan Kantor",a:"Tambah pembelian",sk:"kat",def:"Semua",sort:["tgl",-1],
+f:[["tgl","Tanggal pembelian","date",1],["kat","Kategori","sel",0,["ATK","P3K","RTK"]],["nama","Nama barang","text",1],["qty","Quantity","num"],["sat","Satuan","text"],["total","Total pembelian","rp"],["ket","Keterangan","area"]],
+cols:["tgl","kat","nama","qty","sat","total"]}};
+const FL={po:{q:"",m:-1,y:0,v:"",st:""}};
+const fl=s=>FL[s]||(FL[s]={q:"",st:G[s].def,since:""});
+function cell(c,k,r){const t=c.f.find(x=>x[0]==k)[2],v=r[k];if(v===undefined||v==="")return "-";
+return t=="date"?fd(v):t=="rp"?rp(v):t=="num"?new Intl.NumberFormat("id-ID").format(v):t=="sel"?bd(v,["Tinggi","Rusak berat"].includes(v)?"bad":["Selesai","Sudah dibayar","Baik"].includes(v)?"ok":"neu"):esc(v)}
+function gen(s){const c=G[s],f=fl(s),opts=c.sk?c.f.find(x=>x[0]==c.sk)[4]:[],q=f.q.toLowerCase(),[sk,dr]=c.sort,ev=r=>r[sk]||(dr>0?"9999":"");
+const rows=D[s].filter(r=>(!q||c.f.map(x=>r[x[0]]).join(" ").toLowerCase().includes(q))&&(!c.sk||f.st=="Semua"||(f.st=="Aktif"?r[c.sk]!="Selesai":r[c.sk]==f.st))&&(!c.dk||!f.since||(r[c.dk]||"")>=f.since)).sort((a,b)=>(ev(a)<ev(b)?-1:1)*dr);
+return `<div class="head"><h1>${c.t}</h1><button class="btn" onclick="gForm('${s}')">+ ${c.a}</button></div>
+<div class="bar"><input placeholder="Cari…" value="${esc(f.q)}" onchange="gSet('${s}','q',this.value)">${c.sk?`<select onchange="gSet('${s}','st',this.value)">${[...(c.def=="Aktif"?["Aktif"]:[]),"Semua",...opts].map(x=>`<option ${f.st==x?"selected":""}>${x}</option>`).join("")}</select>`:""}${c.dk?`<label style="margin:0">Sejak</label><input type="date" value="${f.since}" onchange="gSet('${s}','since',this.value)">`:""}</div>
+${rows.length?`<div class="tw"><table><tr>${c.cols.map(k=>`<th>${c.f.find(x=>x[0]==k)[1]}</th>`).join("")}${c.fl?"<th>Pengingat</th>":""}<th></th></tr>${rows.map(r=>`<tr>${c.cols.map(k=>`<td>${cell(c,k,r)}</td>`).join("")}${c.fl?`<td>${bf(c.fl(r))}</td>`:""}<td><button class="btn ghost sm" onclick="gForm('${s}','${r.id}')">Edit</button> <button class="btn ghost sm" onclick="gDel('${s}','${r.id}')">Hapus</button></td></tr>`).join("")}</table></div>`:`<div class="card empty">${mascot(70)}<p>Belum ada data yang cocok.</p></div>`}`}
+function gSet(s,k,v){fl(s)[k]=v;render()}
+function gForm(s,id){const c=G[s],r=D[s].find(x=>x.id==id)||{};
+dialog(`<h3>${id?"Edit data":c.a}</h3>`+c.f.map(([k,l,t,rq,o])=>`<label>${l}${rq?" *":""}</label>`+(t=="area"?`<textarea id="g_${k}" rows="4">${esc(r[k])}</textarea>`:t=="sel"?`<select id="g_${k}">${o.map(x=>`<option ${(r[k]||o[0])==x?"selected":""}>${x}</option>`).join("")}</select>`:`<input id="g_${k}" type="${t=="date"?"date":t=="text"?"text":"number"}" ${t=="num"||t=="rp"?'min="0"':""} value="${esc(r[k])}">`)).join("")+`<div class="acts"><button class="btn ghost" onclick="$('#dlg').close()">Batal</button><button class="btn" id="ok">Simpan</button></div>`);
+$("#ok").onclick=async()=>{const o={};
+for(const [k,l,t,rq] of c.f){let v=$("#g_"+k).value;if(t!="sel"&&t!="area")v=v.trim();if((t=="num"||t=="rp")&&v!=="")v=+v;if(rq&&v==="")return toast(l+" wajib diisi");o[k]=v}
+if(s=="tugas"&&o.status=="Selesai"&&!o.selesai)o.selesai=iso();
+await save(s,{...r,id:r.id||uid(),createdAt:r.createdAt||Date.now(),...o});$("#dlg").close();toast("Tersimpan ✓");render()}}
+function gDel(s,id){const c=G[s],r=D[s].find(x=>x.id==id);confirmDel(`Data "${esc(r[c.f.find(x=>x[2]=="text")[0]])}" akan dihapus.`,()=>remove(s,id))}
+
+/* ---------- Purchase Order (multi barang) ---------- */
+const PS=["Menunggu kedatangan","Dalam proses","Sudah diterima","Dibatalkan"];let pi=[];
+function pSet(k,v){FL.po[k]=(k=="m"||k=="y")?+v:v;render()}
+function poPage(){const f=FL.po,q=f.q.toLowerCase(),vs=[...new Set(D.po.map(r=>r.vendor).filter(Boolean))].sort(),Y=now.getFullYear();
+const rows=D.po.filter(r=>(!q||[r.no,r.vendor,...r.items.map(i=>i.nama)].join(" ").toLowerCase().includes(q))&&(f.m<0||+r.tgl.slice(5,7)-1==f.m)&&(!f.y||+r.tgl.slice(0,4)==f.y)&&(!f.v||r.vendor==f.v)&&(!f.st||r.status==f.st)).sort((a,b)=>b.tgl.localeCompare(a.tgl));
+let yo='<option value="0">Semua tahun</option>';for(let y=Y+1;y>=Y-6;y--)yo+=`<option ${f.y==y?"selected":""}>${y}</option>`;
+return `<div class="head"><h1>📦 Purchase Order</h1><button class="btn" onclick="poForm()">+ Tambah PO</button></div>
+<div class="bar"><input placeholder="Cari no. PO, vendor, barang…" value="${esc(f.q)}" onchange="pSet('q',this.value)"><select onchange="pSet('m',this.value)"><option value="-1">Semua bulan</option>${MN.map((x,i)=>`<option value="${i}" ${f.m==i?"selected":""}>${x}</option>`).join("")}</select><select onchange="pSet('y',this.value)">${yo}</select><select onchange="pSet('v',this.value)"><option value="">Semua vendor</option>${vs.map(v=>`<option ${f.v==v?"selected":""}>${esc(v)}</option>`).join("")}</select><select onchange="pSet('st',this.value)"><option value="">Semua status</option>${PS.map(x=>`<option ${f.st==x?"selected":""}>${x}</option>`).join("")}</select></div>
+${rows.length?`<div class="tw"><table><tr><th>No. PO</th><th>Tanggal</th><th>Vendor</th><th>Barang</th><th>ETA</th><th>Status</th><th></th></tr>${rows.map(r=>`<tr><td><b>${esc(r.no)}</b></td><td>${fd(r.tgl)}</td><td>${esc(r.vendor)}</td><td style="white-space:normal">${r.items.map(i=>`${esc(i.nama)}${i.spek?" ("+esc(i.spek)+")":""} ×${i.qty||0} ${esc(i.sat)}`).join("<br>")}</td><td>${fd(r.eta)}</td><td>${bd(r.status,r.status=="Sudah diterima"?"ok":r.status=="Dibatalkan"?"neu":"warn")} ${bf(poFlag(r))}</td><td><button class="btn ghost sm" onclick="poForm('${r.id}')">Edit</button> <button class="btn ghost sm" onclick="poDel('${r.id}')">Hapus</button></td></tr>`).join("")}</table></div>`:`<div class="card empty">${mascot(70)}<p>Belum ada PO yang cocok.</p></div>`}`}
+function drawIt(){$("#its").innerHTML=pi.map((x,i)=>`<div class="it"><input placeholder="Nama barang" value="${esc(x.nama)}" oninput="pi[${i}].nama=this.value"><input placeholder="Spesifikasi" value="${esc(x.spek)}" oninput="pi[${i}].spek=this.value"><input type="number" min="0" placeholder="Qty" value="${x.qty??""}" oninput="pi[${i}].qty=+this.value"><input placeholder="Satuan" value="${esc(x.sat)}" oninput="pi[${i}].sat=this.value"><button class="btn ghost sm" onclick="pi.splice(${i},1);drawIt()" aria-label="Hapus barang">✕</button></div>`).join("")}
+function poForm(id){const r=D.po.find(x=>x.id==id)||{tgl:iso(),status:PS[0],items:[{}]};pi=JSON.parse(JSON.stringify(r.items));
+const d=dialog(`<h3>${id?"Edit":"Tambah"} PO</h3><div class="row2"><div><label>Nomor PO *</label><input id="p1" value="${esc(r.no)}"></div><div><label>Tanggal pembuatan *</label><input type="date" id="p2" value="${r.tgl}"></div><div><label>Vendor *</label><input id="p3" value="${esc(r.vendor)}"></div><div><label>ETA</label><input type="date" id="p4" value="${r.eta||""}"></div></div><label>Status</label><select id="p5">${PS.map(x=>`<option ${r.status==x?"selected":""}>${x}</option>`).join("")}</select><label>Catatan</label><textarea id="p6" rows="2">${esc(r.cat)}</textarea><label>Daftar barang</label><div id="its"></div><button class="btn ghost sm" onclick="pi.push({});drawIt()">+ Tambah barang</button><div class="acts"><button class="btn ghost" onclick="$('#dlg').close()">Batal</button><button class="btn" id="ok">Simpan</button></div>`);d.className="w";drawIt();
+$("#ok").onclick=async()=>{const no=$("#p1").value.trim(),tgl=$("#p2").value,vendor=$("#p3").value.trim(),items=pi.filter(x=>x.nama&&x.nama.trim());
+if(!no||!tgl||!vendor)return toast("No. PO, tanggal, dan vendor wajib diisi");if(!items.length)return toast("Isi minimal satu barang");
+if(D.po.some(x=>x.no==no&&x.id!=r.id))return toast("Nomor PO "+no+" sudah ada");
+await save("po",{...r,id:r.id||uid(),createdAt:r.createdAt||Date.now(),no,tgl,vendor,eta:$("#p4").value,status:$("#p5").value,cat:$("#p6").value.trim(),items});$("#dlg").close();toast("Tersimpan ✓");render()}}
+function poDel(id){const r=D.po.find(x=>x.id==id);confirmDel(`PO ${esc(r.no)} beserta daftar barangnya akan dihapus.`,()=>remove("po",id))}
+
+/* ---------- ringkasan dashboard ---------- */
+function dash2(){const m=now.getMonth(),y=now.getFullYear(),R=[],tg=D.tugas.filter(r=>r.status!="Selesai");
+D.po.filter(r=>OPEN.includes(r.status)).forEach(r=>{const f=poFlag(r);f&&R.push([dl(r.eta),"📦","PO "+r.no+" ("+r.vendor+")",f,"po"])});
+tg.forEach(r=>{const f=G.tugas.fl(r);f&&R.push([dl(r.dl),"📋",r.judul,f,"tugas"])});
+D.pajak.forEach(r=>{const f=G.pajak.fl(r);f&&R.push([dl(r.due),"🧾","Pajak "+r.nama+" "+r.plat,f,"pajak"])});
+D.service.forEach(r=>{const f=G.service.fl(r);f&&R.push([dl(r.next),"🔧","Service "+r.nama+" "+r.plat,f,"service"])});
+R.sort((a,b)=>(a[0]??0)-(b[0]??0));
+const perl=D.perl.filter(r=>r.tgl&&+r.tgl.slice(5,7)-1==m&&+r.tgl.slice(0,4)==y).reduce((a,r)=>a+(+r.total||0),0);
+const C=(i,l,v,bg)=>`<div class="card stat" style="background:var(--${bg})"><span>${i} ${l}</span><b>${v}</b></div>`;
+return `<div class="grid" style="margin-top:16px">${C("📦","PO bulan ini",D.po.filter(r=>+r.tgl.slice(5,7)-1==m&&+r.tgl.slice(0,4)==y).length,"blue")}${C("⏳","PO belum diterima",D.po.filter(r=>OPEN.includes(r.status)).length,"yel")}${C("📋","Tugas belum selesai",tg.length,"pink")}${C("🖇️","Perlengkapan bulan ini",rp(perl),"peach")}</div>
+<div class="card" style="margin-top:16px"><h3 style="margin-bottom:10px">🔔 Pengingat terdekat</h3>${R.length?R.slice(0,6).map(x=>`<button class="rm" onclick="go('${x[4]}')"><span class="ico">${x[1]}</span><span style="flex:1">${esc(x[2])}</span>${bf(x[3])}</button>`).join(""):`<p class="note" style="margin:0">Tidak ada PO, tugas, pajak, atau service yang mendesak.</p>`}</div>
+`}
+
+/* ---------- Catatan Pemeliharaan & Pembelian ---------- */
+G.log={t:"📝 Catatan Pemeliharaan",a:"Tambah catatan",sk:"kat",def:"Semua",dk:"tgl",sort:["tgl",-1],
+f:[["tgl","Tanggal","date",1],["ket","Keterangan","text",1],["kat","Kategori","sel",0,["Pemeliharaan","Pembelian","Lainnya"]]],cols:["tgl","kat","ket"]};
+const katOf=t=>/^pembelian/i.test(t||"")?"Pembelian":/^pemelihar/i.test(t||"")?"Pemeliharaan":null;
+const _sv=save;save=async function(s,o){if(s=="log"){const k=katOf(o.ket);if(k)o.kat=k}return _sv(s,o)};
+
+/* ---------- Import Excel / CSV / tempel ---------- */
+const MON={januari:0,jan:0,january:0,februari:1,feb:1,february:1,maret:2,mar:2,march:2,april:3,apr:3,mei:4,may:4,juni:5,jun:5,june:5,juli:6,jul:6,july:6,agustus:7,agu:7,aug:7,august:7,september:8,sep:8,oktober:9,okt:9,oct:9,october:9,november:10,nov:10,desember:11,des:11,dec:11,december:11};
+function mk(y,m,d){const t=new Date(y,m,d);return t.getMonth()==m&&t.getDate()==d?y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0"):null}
+function pDate(v){if(v instanceof Date){if(isNaN(v))return null;v=new Date(v.getTime()+432e5);return mk(v.getFullYear(),v.getMonth(),v.getDate())}
+v=String(v??"").trim();if(!v)return"";let m=v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return mk(+m[1],+m[2]-1,+m[3]);
+m=v.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);if(m)return mk(+m[3]<100?2000+ +m[3]:+m[3],+m[2]-1,+m[1]);
+m=v.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);if(m&&MON[m[2].toLowerCase()]!=null)return mk(+m[3],MON[m[2].toLowerCase()],+m[1]);return null}
+const pNum=v=>{if(typeof v=="number")return v;const s=String(v??"").replace(/[^\d-]/g,"");return s===""||s=="-"?"":+s};
+const MK=[["m","Bulan","month",1],["y","Tahun","num",1],["saldo","Saldo awal","rp",1],["ket","Keterangan","text"]];
+const IMP={petty:{t:"Petty Cash",k:[["date","Tanggal","date",1],["ket","Keterangan","text",1],["cin","Cash In","rp"],["cout","Cash Out","rp"]]},emoney:{t:"E-Money Mobil",k:MK}};
+for(const s of Object.keys(G))IMP[s]={t:G[s].t.replace(/^\S+\s/,""),k:G[s].f};
+function csv(t){const L=t.split(/\r?\n/).filter(x=>x.trim()!=="");const d=["\t",";",","].find(x=>(L[0]||"").includes(x))||",";
+return L.map(l=>{const o=[];let c="",q=0;for(const ch of l){if(ch=='"')q=!q;else if(ch==d&&!q){o.push(c);c=""}else c+=ch}o.push(c);return o})}
+function impBuild(s,raw){const K=IMP[s].k,low=x=>String(x??"").trim().toLowerCase();let rows=raw.filter(r=>r.some(c=>String(c??"").trim()!==""));
+let idx=K.map((_,i)=>i);const h=rows[0]?rows[0].map(low):[];
+const hm=K.map(([k,l])=>h.findIndex(x=>x.length>2&&(x==k||low(l).startsWith(x))));
+if(hm.some(i=>i>=0)){idx=hm;rows=rows.slice(1)}
+const dk=o=>s=="emoney"?o.m+"|"+o.y:K.map(([k])=>o[k]??"").join("|"),seen=new Set(D[s].map(dk)),out=[];let prev="";
+rows.forEach(r=>{const g=i=>i>=0?r[i]:"",o={},er=[];
+if(s=="log"&&/^\d{4}$/.test(String(g(idx[0])).trim())&&!String(g(idx[1])??"").trim())return;
+K.forEach(([k,l,t,rq,op],j)=>{let v=g(idx[j]);if(typeof v=="string")v=v.trim();
+if(t=="date"){let d=pDate(v);if(s=="log"&&j==0){if(d==="")d=prev;else if(d)prev=d}if(d===null)er.push(l+" tidak valid");v=d}
+else if(t=="num"||t=="rp")v=pNum(v);
+else if(t=="month"){const x=low(v),b=/^\d+$/.test(x)?+x-1:MON[x];if(b==null||b<0||b>11)er.push("Bulan tidak valid");v=b}
+else if(t=="sel"){if(v===""||v==null)v=op[0];else{const f=op.find(z=>low(z)==low(v));if(!f)er.push(l+" tidak dikenal");v=f}}
+else v=String(v??"").trim();
+if(rq&&(v===""||v==null)&&!er.length)er.push(l+" wajib diisi");o[k]=v});
+if(s=="log")o.kat=katOf(o.ket)||(idx[2]<0?"Lainnya":o.kat);
+if(s=="petty"){o.cin=+o.cin||0;o.cout=+o.cout||0;if(!o.cin&&!o.cout)er.push("Cash In/Out kosong");if(o.cin&&o.cout)er.push("Isi salah satu saja")}
+let dup=false;if(!er.length){const key=dk(o);dup=seen.has(key);seen.add(key)}
+out.push({o,er,dup})});return out}
+let IM={s:"log",txt:"",raw:null,rows:null};
+function impPrev(){const raw=IM.txt.trim()?csv(IM.txt):(IM.raw||[]);if(!raw.length)return toast("Tempel data atau pilih file dulu");IM.rows=impBuild(IM.s,raw);render()}
+function impFile(f){if(!f)return;const x=/\.xlsx?$/i.test(f.name);
+if(!x){const r=new FileReader();r.onload=()=>{IM.txt=String(r.result);IM.raw=null;impPrev()};r.readAsText(f);return}
+if(typeof XLSX=="undefined")return toast("Pustaka Excel belum termuat. Simpan file sebagai CSV, atau coba lagi saat online");
+f.arrayBuffer().then(b=>{const w=XLSX.read(b,{type:"array",cellDates:true});IM.raw=XLSX.utils.sheet_to_json(w.Sheets[w.SheetNames[0]],{header:1,raw:true,defval:""});IM.txt="";impPrev()}).catch(()=>toast("File tidak bisa dibaca"))}
+async function impRun(){const ok=IM.rows.filter(x=>!x.er.length&&!x.dup),s=IM.s;
+try{for(const [i,x] of ok.entries())await save(s,{...x.o,id:uid(),createdAt:Date.now()+i})}catch(e){return toast("Import gagal")}
+toast(ok.length+" baris berhasil diimpor ✓");IM.rows=null;IM.txt="";IM.raw=null;go(s)}
+function iv(t,v){return v===""||v==null?"-":t=="date"?fd(v):t=="month"?MN[v]:t=="rp"?rp(v):esc(v)}
+function impPage(){const sp=IMP[IM.s],r=IM.rows,ok=r?r.filter(x=>!x.er.length&&!x.dup).length:0;
+return `<div class="head"><h1>📥 Import dan Export</h1><button class="btn" onclick="expAll()">⬇️ Export semua data (Excel)</button></div><div class="card"><label>Import ke modul</label><select onchange="IM.s=this.value;IM.rows=null;render()">${Object.keys(IMP).map(k=>`<option value="${k}" ${IM.s==k?"selected":""}>${IMP[k].t}</option>`).join("")}</select>
+<p class="note">Urutan kolom: ${sp.k.map(x=>x[1]+(x[3]?"*":"")).join(", ")}. Baris judul kolom dikenali otomatis. Tanggal boleh 2026-01-09, 09/01/2026, atau “Friday, 09 January 2026”. Purchase Order (multi barang) belum bisa diimpor.</p>
+<label>Tempel dari Excel atau Sheets</label><textarea rows="6" oninput="IM.txt=this.value">${esc(IM.txt)}</textarea>
+<label>atau pilih file (.csv, .xlsx)</label><input type="file" accept=".csv,.txt,.xlsx,.xls" onchange="impFile(this.files[0])">
+<div class="acts"><button class="btn" onclick="impPrev()">Lihat preview</button></div></div>
+${r?`<div class="card" style="margin-top:16px"><h3>Preview</h3><p>${bd(ok+" siap diimpor","ok")} ${bd(r.filter(x=>x.dup).length+" duplikat (dilewati)","warn")} ${bd(r.filter(x=>x.er.length).length+" error (dilewati)","bad")}</p>
+<div class="tw"><table><tr>${sp.k.map(x=>`<th>${x[1]}</th>`).join("")}<th>Status</th></tr>${r.slice(0,100).map(x=>`<tr>${sp.k.map(([k,l,t])=>`<td>${iv(t,x.o[k])}</td>`).join("")}<td>${x.er.length?bd(x.er.join(", "),"bad"):x.dup?bd("Duplikat","warn"):bd("OK","ok")}</td></tr>`).join("")}</table></div>
+${r.length>100?`<p class="note">Menampilkan 100 baris pertama dari ${r.length}.</p>`:""}
+<div class="acts"><button class="btn ghost" onclick="IM.rows=null;render()">Batal</button><button class="btn" ${ok?"":"disabled"} onclick="impRun()">Impor ${ok} baris</button></div></div>`:""}`}
+
+/* ---------- Sync Status ---------- */
+function syncPage(){const nm=s=>s=="po"?"Purchase Order":IMP[s].t;let tot=0;
+const rows=Object.keys(D).map(s=>{const n=D[s].length,p=D[s].filter(r=>!r.synced).length;tot+=p;return `<tr><td>${nm(s)}</td><td class="n">${n}</td><td class="n">${p}</td></tr>`}).join("");
+return `<div class="head"><h1>🔄 Sync Status</h1></div><div class="grid" style="margin-bottom:16px"><div class="card stat"><span>Penyimpanan lokal</span><b>${persist?"Aktif":"Tidak tersedia"}</b></div><div class="card stat"><span>Koneksi internet</span><b>${navigator.onLine?"Online":"Offline"}</b></div><div class="card stat"><span>Google Sheets</span><b>Belum terhubung</b></div></div>
+<div class="tw"><table><tr><th>Modul</th><th class="n">Jumlah data</th><th class="n">Menunggu sinkronisasi</th></tr>${rows}</table></div>
+<p class="note">Semua data tersimpan di browser ini dan ditandai “menunggu sinkronisasi” (${tot} data). Pengiriman ke Google Sheets belum bisa dilakukan dari versi ini, jadi angkanya belum berkurang.</p>`}
+
+/* ---------- Aktiva Tetap (disederhanakan) ---------- */
+G.aktiva={t:"🏢 Aktiva Tetap",a:"Tambah aset",
+f:[["kode","Kode aset","text",1],["nama","Nama aset","text",1],["tglp","Tanggal perolehan","date",1],["nominal","Nominal","rp",1],["ppn","Keterangan PPN","sel",0,["PPN","Non-PPN"]],["thn","Tahun pencatatan","num"]]};
+IMP.aktiva={t:"Aktiva Tetap",k:G.aktiva.f};
+const _s2=save;save=async function(s,o){if(s=="aktiva"&&(o.thn===""||o.thn==null)&&o.tglp)o.thn=+o.tglp.slice(0,4);return _s2(s,o)};
+const dd=t=>{if(!t)return"-";const d=new Date(t);return fd(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"))};
+function aktPage(){const f=FL.akt||(FL.akt={q:"",y:""}),q=f.q.toLowerCase(),c=G.aktiva,rk={};
+D.aktiva.forEach(r=>{const y=r.thn||"-",o=rk[y]||(rk[y]={n:0,t:0,p:0,x:0}),v=+r.nominal||0;o.n++;o.t+=v;r.ppn=="PPN"?o.p+=v:o.x+=v});
+const ys=Object.keys(rk).sort((a,b)=>b-a),rows=D.aktiva.filter(r=>(!q||(r.kode+" "+r.nama).toLowerCase().includes(q))&&(!f.y||r.thn==f.y)).sort((a,b)=>(b.thn||0)-(a.thn||0)||(b.tglp||"").localeCompare(a.tglp||"")),tot=rows.reduce((a,r)=>a+(+r.nominal||0),0);
+return `<div class="head"><h1>🏢 Aktiva Tetap</h1><button class="btn" onclick="gForm('aktiva')">+ Tambah aset</button></div>
+<div class="bar"><input placeholder="Cari kode atau nama aset…" value="${esc(f.q)}" onchange="FL.akt.q=this.value;render()"><select onchange="FL.akt.y=this.value;render()"><option value="">Semua tahun</option>${ys.map(y=>`<option ${f.y==y?"selected":""}>${y}</option>`).join("")}</select></div>
+${ys.length?`<div class="card" style="margin-bottom:16px"><h3 style="margin-bottom:10px">Rekap nominal per tahun</h3><div class="tw"><table><tr><th>Tahun</th><th class="n">Jumlah aset</th><th class="n">Total nominal</th><th class="n">PPN</th><th class="n">Non-PPN</th></tr>${ys.map(y=>{const o=rk[y];return `<tr><td>${y}</td><td class="n">${o.n}</td><td class="n">${rp(o.t)}</td><td class="n">${rp(o.p)}</td><td class="n">${rp(o.x)}</td></tr>`}).join("")}</table></div></div>`:""}
+${rows.length?`<div class="tw"><table><tr>${["kode","nama","tglp","nominal","ppn","thn"].map(k=>`<th>${c.f.find(x=>x[0]==k)[1]}</th>`).join("")}<th>Dicatat</th><th></th></tr>${rows.map(r=>`<tr>${["kode","nama","tglp","nominal","ppn","thn"].map(k=>`<td>${cell(c,k,r)}</td>`).join("")}<td>${dd(r.createdAt)}</td><td><button class="btn ghost sm" onclick="gForm('aktiva','${r.id}')">Edit</button> <button class="btn ghost sm" onclick="gDel('aktiva','${r.id}')">Hapus</button></td></tr>`).join("")}</table></div><p class="note">Total nominal yang ditampilkan: ${rp(tot)}. Kolom “Dicatat” adalah riwayat kapan aset dimasukkan ke aplikasi.</p>`:`<div class="card empty">${mascot(70)}<p>Belum ada aset yang cocok.</p></div>`}`}
+
+/* ---------- Report Center ---------- */
+let RP={mode:"bln",m:now.getMonth(),y:now.getFullYear()};
+const inM=(d,m,y)=>!!d&&+d.slice(0,4)==y&&(m<0||+d.slice(5,7)-1==m);
+const sm=(a,f)=>a.reduce((x,r)=>x+(+f(r)||0),0);
+function repData(){const {mode,y}=RP,m=mode=="bln"?RP.m:-1,S=[],bln=m>=0;let b=0;
+const pr=[...D.petty].sort((a,c)=>a.date.localeCompare(c.date)||a.createdAt-c.createdAt).map(r=>({...r,bal:(b+=(+r.cin||0)-(+r.cout||0))})).filter(r=>inM(r.date,m,y));
+const ci=sm(pr,r=>r.cin),co=sm(pr,r=>r.cout);
+S.push(["💖 Petty Cash",["Tanggal","Keterangan","Cash In","Cash Out","Saldo"],pr.length?pr.map(r=>[fd(r.date),r.ket,r.cin?rp(r.cin):"",r.cout?rp(r.cout):"",rp(r.bal)]).concat([["","Total Cash In",rp(ci),"",""],["","Total Cash Out","",rp(co),""],["","Pengeluaran Keseluruhan","",rp(co),""],["","Saldo Akhir","","",rp(pr[pr.length-1].bal)]]):[]]);
+S.push(["🚗 Saldo awal E-Money",["Periode","Saldo awal","Keterangan"],D.emoney.filter(r=>r.y==y&&(!bln||r.m==m)).sort((a,c)=>a.m-c.m).map(r=>[MN[r.m]+" "+r.y,rp(r.saldo),r.ket||""])]);
+const po=D.po.filter(r=>inM(r.tgl,m,y)).sort((a,c)=>a.tgl.localeCompare(c.tgl));
+S.push([bln?"📦 PO yang dibuat":"📦 Rekap seluruh PO",["No. PO","Tanggal","Vendor","Barang","ETA","Status"],po.map(r=>[r.no,fd(r.tgl),r.vendor,r.items.map(i=>i.nama+" ×"+(i.qty||0)).join("; "),fd(r.eta),r.status])]);
+const tg=D.tugas.filter(r=>inM(r.tgl,m,y)).sort((a,c)=>a.tgl.localeCompare(c.tgl));
+if(bln)S.push(["📋 Tugas tambahan",["Tanggal","Judul","Pemberi","Deadline","Prioritas","Status"],tg.map(r=>[fd(r.tgl),r.judul,r.pemberi||"",fd(r.dl),r.prio||"",r.status||""])]);
+const pl=D.perl.filter(r=>inM(r.tgl,m,y)).sort((a,c)=>a.tgl.localeCompare(c.tgl));
+if(bln)S.push(["🖇️ Pembelian perlengkapan kantor",["Tanggal","Kategori","Barang","Qty","Satuan","Total"],pl.length?pl.map(r=>[fd(r.tgl),r.kat,r.nama,r.qty??"",r.sat||"",rp(r.total)]).concat([["","","Total pembelian","","",rp(sm(pl,r=>r.total))]]):[]]);
+S.push(["📝 Catatan pemeliharaan dan pembelian",["Tanggal","Kategori","Keterangan"],D.log.filter(r=>inM(r.tgl,m,y)).sort((a,c)=>a.tgl.localeCompare(c.tgl)).map(r=>[fd(r.tgl),r.kat,r.ket])]);
+if(!bln){
+S.push(["🔧 Riwayat service kendaraan",["Kendaraan","No. polisi","Tanggal","Jenis","Kilometer","Berikutnya"],D.service.filter(r=>inM(r.tgl,-1,y)).sort((a,c)=>a.tgl.localeCompare(c.tgl)).map(r=>[r.nama,r.plat,fd(r.tgl),r.jenis||"",r.km??"",r.next?fd(r.next):r.nextKm?r.nextKm+" km":"-"])]);
+S.push(["🧾 Riwayat pembayaran pajak kendaraan",["Kendaraan","No. polisi","Jenis pajak","Jatuh tempo","Biaya","Status"],D.pajak.filter(r=>inM(r.due,-1,y)).sort((a,c)=>a.due.localeCompare(c.due)).map(r=>[r.nama,r.plat,r.jenis||"",fd(r.due),rp(r.biaya),r.status])]);
+const ak=D.aktiva.filter(r=>r.thn==y);
+S.push(["🏢 Aktiva tetap",["Kode","Nama aset","Tanggal perolehan","Nominal","PPN"],ak.length?ak.map(r=>[r.kode,r.nama,fd(r.tglp),rp(r.nominal),r.ppn||""]).concat([["","Total","",rp(sm(ak,r=>r.nominal)),""]]):[]]);
+const tp=D.perl.filter(r=>inM(r.tgl,-1,y));
+S.push(["✅ Rekap pekerjaan administrasi",["Item","Jumlah"],[["PO dibuat",po.length],["PO sudah diterima",po.filter(r=>r.status=="Sudah diterima").length],["PO belum diterima",po.filter(r=>OPEN.includes(r.status)).length],["Tugas tambahan",tg.length],["Tugas selesai",tg.filter(r=>r.status=="Selesai").length],["Tugas belum selesai",tg.filter(r=>r.status!="Selesai").length],["Total Cash In Petty Cash",rp(ci)],["Total Cash Out Petty Cash",rp(co)],["Total pembelian perlengkapan",rp(sm(tp,r=>r.total))]]])}
+return S}
+function lapPage(){const {mode,m,y}=RP,S=repData(),Y=now.getFullYear();let yo="";for(let i=Y+1;i>=Y-6;i--)yo+=`<option ${i==y?"selected":""}>${i}</option>`;
+return `<div class="head"><h1>📊 Report Center</h1><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" onclick="copyRep()">Salin</button><button class="btn" onclick="expRep()">⬇️ Export Excel</button></div></div>
+<div class="bar"><select onchange="RP.mode=this.value;render()"><option value="bln" ${mode=="bln"?"selected":""}>Laporan bulanan</option><option value="thn" ${mode=="thn"?"selected":""}>Laporan tahunan</option></select>${mode=="bln"?`<select onchange="RP.m=+this.value;render()">${MN.map((x,i)=>`<option value="${i}" ${i==m?"selected":""}>${x}</option>`).join("")}</select>`:""}<select onchange="RP.y=+this.value;render()">${yo}</select></div>
+${S.map(([n,h,r])=>`<div class="card" style="margin-bottom:16px"><h3 style="margin-bottom:10px">${n}</h3>${r.length?`<div class="tw"><table><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr>${r.map(x=>`<tr>${x.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</table></div>`:`<p class="note" style="margin:0">Tidak ada data pada periode ini.</p>`}</div>`).join("")}`}
+function copyRep(){const t=(RP.mode=="bln"?"Laporan "+MN[RP.m]+" "+RP.y:"Laporan tahun "+RP.y)+"\n\n"+repData().filter(s=>s[2].length).map(([n,h,r])=>n.replace(/^\S+\s/,"")+"\n"+[h,...r].map(x=>x.join("\t")).join("\n")).join("\n\n");
+const a=document.createElement("textarea");a.value=t;a.style.cssText="position:fixed;opacity:0";document.body.appendChild(a);a.select();let ok=false;try{ok=document.execCommand("copy")}catch(e){}a.remove();toast(ok?"Laporan disalin. Tempel di Excel dengan Ctrl+V":"Gagal menyalin otomatis")}
+
+/* ---------- Export Excel (.xlsx) ---------- */
+const nz=x=>typeof x=="string"&&/^Rp -?[\d.]+$/.test(x)?+x.slice(3).replace(/\./g,""):x;
+function saveBlob(name,buf){const u=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
+async function xlsxSave(name,sheets){sheets=sheets.filter(s=>s[2].length);
+if(!sheets.length)return toast("Belum ada data untuk diexport");
+if(typeof XLSX=="undefined")return toast("Pustaka Excel belum termuat. Coba lagi saat online");
+let dl=null;try{if(typeof claude!="undefined")dl=await claude.use("downloads")}catch(e){}
+try{const wb=XLSX.utils.book_new(),used=new Set();
+sheets.forEach(([t,h,r],i)=>{let n=t.replace(/^[^\x00-\x7F]\S*\s/,"").replace(/[\\\/?*\[\]:]/g,"").slice(0,31)||"Sheet"+(i+1);if(used.has(n))n=n.slice(0,28)+"_"+i;used.add(n);
+const ws=XLSX.utils.aoa_to_sheet([h,...r.map(x=>x.map(nz))]);ws["!cols"]=h.map((_,j)=>({wch:Math.min(45,Math.max(String(h[j]).length,...r.map(x=>String(x[j]??"").length))+2)}));XLSX.utils.book_append_sheet(wb,ws,n)});
+const buf=XLSX.write(wb,{type:"array",bookType:"xlsx"});
+if(dl)await dl.save({filename:name,data:buf});else saveBlob(name,buf);toast("File Excel siap disimpan ✓")}
+catch(e){toast(e&&e.code=="declined"?"Unduhan dibatalkan":"Gagal membuat file Excel")}}
+function modSheet(s){const nm=s=="po"?"Purchase Order":s=="petty"?"Petty Cash":s=="emoney"?"E-Money Mobil":G[s].t.replace(/^\S+\s/,"");
+if(s=="petty"){let b=0;return [nm,["Tanggal","Keterangan","Cash In","Cash Out","Saldo"],[...D.petty].sort((a,c)=>a.date.localeCompare(c.date)||a.createdAt-c.createdAt).map(r=>[fd(r.date),r.ket,+r.cin||0,+r.cout||0,(b+=(+r.cin||0)-(+r.cout||0))])]}
+if(s=="emoney")return [nm,["Bulan","Tahun","Saldo awal","Keterangan"],[...D.emoney].sort((a,c)=>a.y-c.y||a.m-c.m).map(r=>[MN[r.m],r.y,+r.saldo||0,r.ket||""])];
+if(s=="po")return [nm,["No. PO","Tanggal","Vendor","ETA","Status","Catatan","Barang","Spesifikasi","Qty","Satuan"],[...D.po].sort((a,c)=>a.tgl.localeCompare(c.tgl)).flatMap(r=>r.items.map(i=>[r.no,fd(r.tgl),r.vendor,r.eta?fd(r.eta):"",r.status,r.cat||"",i.nama,i.spek||"",i.qty??"",i.sat||""]))];
+const c=G[s];return [nm,c.f.map(x=>x[1]),D[s].map(r=>c.f.map(([k,l,t])=>{const v=r[k];return v==null||v===""?"":t=="date"?fd(v):v}))]}
+const EXPN=["petty","emoney","po","tugas","service","pajak","aktiva","perl","log"];
+function expMod(s){const m=modSheet(s);xlsxSave("NailongAdmin-"+m[0].replace(/\s+/g,"")+"-"+iso()+".xlsx",[m])}
+function expAll(){xlsxSave("NailongAdmin-SemuaData-"+iso()+".xlsx",EXPN.map(modSheet))}
+function expRep(){xlsxSave(RP.mode=="bln"?"Laporan-Bulanan-"+RP.y+"-"+String(RP.m+1).padStart(2,"0")+".xlsx":"Laporan-Tahunan-"+RP.y+".xlsx",repData())}
+function exportBtn(){const h=document.querySelector("#main .head"),b=h&&h.querySelector("button");if(!b||!EXPN.includes(page))return;
+const w=document.createElement("div");w.style.cssText="display:flex;gap:8px;flex-wrap:wrap";const x=document.createElement("button");x.className="btn ghost";x.textContent="⬇️ Export Excel";x.onclick=()=>expMod(page);b.replaceWith(w);w.append(x,b)}
+
+/* ---------- Karakter 3D (Three.js) ---------- */
+(function(){
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const CH={dash:{s:"walk"},petty:{s:"sit"},po:{s:"idle",p:"box"},tugas:{s:"idle",p:"clip"},lap:{s:"work"},imp:{s:"work"}};
+let base="idle",prop="",OV=null,last=Date.now(),api=null;
+const _t=toast;toast=function(m){_t(m);if(/✓/.test(m)&&window.charEv)charEv("happy",2.4)};
+const act=()=>{const was=OV&&OV.st=="sleep";last=Date.now();if(was)OV={st:"greet",u:last+2200}};
+["pointermove","pointerdown","keydown","scroll"].forEach(e=>addEventListener(e,act,{passive:true}));
+function init(){if(typeof THREE=="undefined")return;
+try{
+const cv=document.createElement("canvas");cv.id="c3";cv.setAttribute("aria-hidden","true");document.body.appendChild(cv);
+const ren=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true});ren.setPixelRatio(Math.min(devicePixelRatio||1,2));
+const sc=new THREE.Scene(),cam=new THREE.OrthographicCamera(-1,1,1,0,-600,600);cam.position.z=300;
+sc.add(new THREE.AmbientLight(0xffffff,.8));const dl=new THREE.DirectionalLight(0xffffff,.55);dl.position.set(80,160,200);sc.add(dl);
+const M=c=>new THREE.MeshLambertMaterial({color:c}),Y=0xFFD84D,Yd=0xFFC21F,Yl=0xFFF0A8,K=0x4A3F4F,Pk=0xFFA9C2;
+const ball=(c,x,y,z,sx,sy,sz,p)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(1,24,18),M(c));m.scale.set(sx,sy,sz);m.position.set(x,y,z);p.add(m);return m};
+const root=new THREE.Group(),bd=new THREE.Group();root.add(bd);bd.position.y=50;sc.add(root);
+ball(Y,0,0,0,40,40,36,bd);ball(Yl,0,-6,28,27,30,12,bd);
+const tail=new THREE.Mesh(new THREE.ConeGeometry(11,34,16),M(Yd));tail.rotation.x=-Math.PI/2-.25;tail.position.set(0,-14,-44);bd.add(tail);
+const hd=new THREE.Group();hd.position.set(0,36,6);bd.add(hd);ball(Y,0,0,0,32,27,29,hd);
+for(const [x,y,s] of [[0,27,1],[-10,25,.8],[10,25,.8]]){const c=new THREE.Mesh(new THREE.ConeGeometry(5*s,12*s,12),M(Yd));c.position.set(x,y,0);hd.add(c)}
+const eyes=[-1,1].map(s=>{const g=new THREE.Group();g.position.set(s*12,3,24);hd.add(g);ball(K,0,0,0,5.5,6.5,4,g);ball(0xffffff,-s*1.2,2,3,1.8,1.8,1.5,g);ball(Pk,s*20,-6,22,6,3.5,2,hd);return g});
+const mo=new THREE.Mesh(new THREE.TorusGeometry(5,.9,8,16,Math.PI),M(K));mo.rotation.z=Math.PI;mo.position.set(0,-4,28.5);hd.add(mo);
+const arm=s=>{const g=new THREE.Group();g.position.set(s*38,12,8);bd.add(g);ball(Y,0,-13,0,9,17,9,g);return g},aL=arm(-1),aR=arm(1);
+const leg=s=>{const g=new THREE.Group();g.position.set(s*16,-34,4);bd.add(g);ball(Yd,0,-5,7,13,9,17,g);return g},lL=leg(-1),lR=leg(1);
+const box=new THREE.Group();box.add(new THREE.Mesh(new THREE.BoxGeometry(36,28,30),M(0xD9A066)),new THREE.Mesh(new THREE.BoxGeometry(8,29,31),M(0xF1D3A5)));box.position.set(0,-4,52);bd.add(box);
+const clip=new THREE.Group();const cb=new THREE.Mesh(new THREE.BoxGeometry(24,32,3),M(0xE3D9FF)),pp=new THREE.Mesh(new THREE.BoxGeometry(19,25,1),M(0xffffff)),cp=new THREE.Mesh(new THREE.BoxGeometry(10,5,4),M(Pk));pp.position.z=2;cp.position.y=15;clip.add(cb,pp,cp);clip.position.set(16,-4,48);clip.rotation.set(-.15,-.3,0);bd.add(clip);
+const D0={aLx:0,aLz:-.25,aRx:0,aRz:.25,lL:0,lR:0,hx:0,hz:0,sq:1,bk:1,jp:0,tl:0,sit:0},KS=Object.keys(D0),P={...D0};
+const br=t=>1+Math.sin(t*2)*.015,bk=t=>t%4<.15?.1:1;
+const SP={idle:t=>({sq:br(t),hz:Math.sin(t*1.1)*.05,bk:bk(t)}),
+walk:t=>{const s=Math.sin(t*7);return{lL:s*.8,lR:-s*.8,aLx:-s*.7,aRx:s*.7,jp:Math.abs(Math.cos(t*7))*5,tl:s*.06}},
+wave:t=>({aRz:2.5+Math.sin(t*11)*.3,hz:-.08,sq:br(t)}),
+greet:t=>({aRz:2.5+Math.sin(t*11)*.3,hx:.2+Math.sin(t*5)*.12,sq:br(t)}),
+work:t=>({aLx:-1.2+Math.sin(t*13)*.2,aRx:-1.2+Math.cos(t*13)*.2,aLz:.3,aRz:-.3,hx:.3,sq:br(t),bk:bk(t)}),
+happy:t=>({aLz:-2.6,aRz:2.6,jp:Math.abs(Math.sin(t*6))*30,sq:1+Math.sin(t*12)*.04,bk:.15}),
+sleep:t=>({hx:.5,hz:.15,bk:.08,sq:1+Math.sin(t*1.3)*.03,aLz:-.1,aRz:.1}),
+sit:t=>({sit:1,hz:Math.sin(t*1.1)*.05,sq:br(t),bk:bk(t)})};
+let minX=-300,maxX=300,dir=1,wv=0,el=0;const clk=new THREE.Clock();
+function resize(){const W=cv.clientWidth||600,H=cv.clientHeight||170;ren.setSize(W,H,false);cam.left=-W/2;cam.right=W/2;cam.top=H;cam.bottom=0;cam.updateProjectionMatrix();minX=-W/2+60;maxX=W/2-60;root.position.x=Math.min(Math.max(root.position.x,minX),maxX)}
+function frame(snap){const dt=Math.min(clk.getDelta(),.05),now=Date.now();el+=dt;
+if(!(OV&&OV.st=="sleep")&&now-last>60000)OV={st:"sleep",u:Infinity};
+let st=OV&&now<OV.u?OV.st:base;
+if(st=="walk"){if(now<wv)st="wave";else{root.position.x+=dir*45*dt;if(root.position.x>maxX||root.position.x<minX){root.position.x=Math.min(Math.max(root.position.x,minX),maxX);dir=-dir;wv=now+1800}}}
+const tg={...D0,...SP[st](el)};
+if(prop&&["idle","greet","sleep"].includes(st)){if(prop=="box"){tg.aLx=tg.aRx=-1.2;tg.aLz=.5;tg.aRz=-.5}else{tg.aRx=-.9;tg.aRz=-.3}}
+const k=snap?1:Math.min(1,dt*9);for(const n of KS)P[n]+=(tg[n]-P[n])*k;
+aL.rotation.set(P.aLx,0,P.aLz);aR.rotation.set(P.aRx,0,P.aRz);lL.rotation.x=P.lL;lR.rotation.x=P.lR;hd.rotation.set(P.hx,0,P.hz);
+bd.scale.y=P.sq;bd.rotation.z=P.tl;bd.position.y=50-12*P.sit+P.jp;
+for(const l of [lL,lR]){l.position.y=-34+12*P.sit;l.position.z=4+22*P.sit}
+eyes.forEach(e=>e.scale.y=P.bk);box.visible=prop=="box";clip.visible=prop=="clip";
+const ry=st=="walk"?dir*1:st=="wave"?0:-.25;root.rotation.y+=(ry-root.rotation.y)*(snap?1:Math.min(1,dt*6));
+ren.render(sc,cam)}
+api={go(p){const c=CH[p]||{s:"idle"};base=c.s;prop=c.p||"";if(base!="walk")root.position.x=maxX-40;OV={st:"greet",u:Date.now()+2200};if(RM)frame(true)},ev(s,sec){OV={st:s,u:Date.now()+sec*1000};if(RM)frame(true)}};
+window.charGo=api.go;window.charEv=api.ev;addEventListener("resize",resize);resize();api.go(page);
+if(!RM)(function loop(){requestAnimationFrame(loop);frame()})()
+}catch(e){}}
+addEventListener("load",init)})();
+
+openDB().then(loadAll).then(()=>{D.aktiva.forEach(r=>{if(r.nominal==null&&r.harga!=null){r.nominal=r.harga;r.ppn=r.ppn||"Non-PPN"}})}).then(render);
+</script>
+<script>if("serviceWorker" in navigator&&location.protocol!=="file:")addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))</script>
+</body>
+</html>
