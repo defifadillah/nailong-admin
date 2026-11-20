@@ -120,7 +120,7 @@ const ci=rows.reduce((a,r)=>a+(+r.cin||0),0),co=rows.reduce((a,r)=>a+(+r.cout||0
 const bal=D.petty.reduce((a,r)=>a+(+r.cin||0)-(+r.cout||0),0);return{ci,co,bal}}
 function startBal(s){const r=D[s].find(x=>x.m==now.getMonth()&&x.y==now.getFullYear());return r?rp(r.saldo):"Belum diisi"}
 function dash(){const p=pettySummary(now.getMonth(),now.getFullYear());
-return `<div class="card hello">${mascot(88)}<div><h1>Halo! Hari ini ${now.getDate()} ${MN[now.getMonth()]} ${now.getFullYear()}</h1><p style="margin:4px 0 0">Mulai dari mencatat Petty Cash, ya.</p></div></div>
+return `<div class="card hello">${mascot(88)}<div><h1>Halo! Hari ini ${fd(iso())}</h1><p style="margin:4px 0 0">Mulai dari mencatat Petty Cash, ya.</p></div></div>
 <div class="grid">
 <div class="card stat" style="background:var(--blue)"><span>👛 Cash In bulan ini</span><b class="in">${rp(p.ci)}</b></div>
 <div class="card stat" style="background:var(--peach)"><span>💸 Cash Out bulan ini</span><b class="out">${rp(p.co)}</b></div>
@@ -141,8 +141,8 @@ return `<div class="head"><h1>👛 Petty Cash</h1><button class="btn" onclick="p
 ${rows.length?`<div class="tw"><table><tr><th>Tanggal</th><th>Keterangan</th><th class="n">Cash In</th><th class="n">Cash Out</th><th class="n">Saldo</th><th></th></tr>${rows.map(r=>`<tr><td>${r.date.split("-").reverse().join("/")}</td><td style="white-space:normal">${esc(r.ket)}</td><td class="n in">${r.cin?rp(r.cin):""}</td><td class="n out">${r.cout?rp(r.cout):""}</td><td class="n">${rp(r.bal)}</td><td><button class="btn ghost sm" onclick="pForm('${r.id}')">Edit</button> <button class="btn ghost sm" onclick="pDel('${r.id}')">Hapus</button></td></tr>`).join("")}</table></div>`:`<div class="card empty">${mascot(70)}<p>Belum ada transaksi di periode ini.</p></div>`}
 <div class="card" style="margin-top:16px;background:var(--pink)"><h3>Ringkasan periode</h3><div class="grid" style="margin-top:10px"><div class="stat"><span>Total Cash In</span><b class="in">${rp(ci)}</b></div><div class="stat"><span>Total Cash Out</span><b class="out">${rp(co)}</b></div><div class="stat"><span>Pengeluaran Keseluruhan</span><b class="out">${rp(co)}</b></div><div class="stat"><span>Saldo Akhir</span><b>${rp(rows.length?rows[rows.length-1].bal:bal)}</b></div></div></div><p class="note">Saldo dihitung berurutan dari seluruh transaksi, jadi saldo awal bulan mengikuti bulan sebelumnya.</p>`}
 function pForm(id){const r=D.petty.find(x=>x.id==id)||{date:iso(),ket:"",cin:"",cout:""};
-dialog(`<h3>${id?"Edit":"Tambah"} transaksi</h3><label>Tanggal</label><input type="date" id="f1" value="${r.date}"><label>Keterangan</label><input id="f2" value="${esc(r.ket)}"><div class="row2"><div><label>Cash In</label><input type="number" min="0" id="f3" value="${r.cin}"></div><div><label>Cash Out</label><input type="number" min="0" id="f4" value="${r.cout}"></div></div><div class="acts"><button class="btn ghost" onclick="$('#dlg').close()">Batal</button><button class="btn" id="ok">Simpan</button></div>`);
-$("#ok").onclick=async()=>{const date=$("#f1").value,ket=$("#f2").value.trim(),cin=+$("#f3").value||0,cout=+$("#f4").value||0;
+dialog(`<h3>${id?"Edit":"Tambah"} transaksi</h3><label>Tanggal</label>${dIn("f1",r.date)}<label>Keterangan</label><input id="f2" value="${esc(r.ket)}"><div class="row2"><div><label>Cash In</label><input type="number" min="0" id="f3" value="${r.cin}"></div><div><label>Cash Out</label><input type="number" min="0" id="f4" value="${r.cout}"></div></div><div class="acts"><button class="btn ghost" onclick="$('#dlg').close()">Batal</button><button class="btn" id="ok">Simpan</button></div>`);
+$("#ok").onclick=async()=>{const date=dVal("f1"),ket=$("#f2").value.trim(),cin=+$("#f3").value||0,cout=+$("#f4").value||0;
 if(!date||!ket)return toast("Tanggal dan keterangan wajib diisi");if(!cin&&!cout)return toast("Isi Cash In atau Cash Out");if(cin&&cout)return toast("Isi salah satu saja: Cash In atau Cash Out");
 await save("petty",{...r,id:r.id||uid(),createdAt:r.createdAt||Date.now(),date,ket,cin,cout});$("#dlg").close();toast("Tersimpan ✓");render()}}
 function pDel(id){const r=D.petty.find(x=>x.id==id);confirmDel(`Transaksi "${esc(r.ket)}" akan dihapus.`,()=>remove("petty",id))}
@@ -198,13 +198,13 @@ return t=="date"?fd(v):t=="rp"?rp(v):t=="num"?new Intl.NumberFormat("id-ID").for
 function gen(s){const c=G[s],f=fl(s),opts=c.sk?c.f.find(x=>x[0]==c.sk)[4]:[],q=f.q.toLowerCase(),[sk,dr]=c.sort,ev=r=>r[sk]||(dr>0?"9999":"");
 const rows=D[s].filter(r=>(!q||c.f.map(x=>r[x[0]]).join(" ").toLowerCase().includes(q))&&(!c.sk||f.st=="Semua"||(f.st=="Aktif"?r[c.sk]!="Selesai":r[c.sk]==f.st))&&(!c.dk||!f.since||(r[c.dk]||"")>=f.since)).sort((a,b)=>(ev(a)<ev(b)?-1:1)*dr);
 return `<div class="head"><h1>${c.t}</h1><button class="btn" onclick="gForm('${s}')">+ ${c.a}</button></div>
-<div class="bar"><input placeholder="Cari…" value="${esc(f.q)}" onchange="gSet('${s}','q',this.value)">${c.sk?`<select onchange="gSet('${s}','st',this.value)">${[...(c.def=="Aktif"?["Aktif"]:[]),"Semua",...opts].map(x=>`<option ${f.st==x?"selected":""}>${x}</option>`).join("")}</select>`:""}${c.dk?`<label style="margin:0">Sejak</label><input type="date" value="${f.since}" onchange="gSet('${s}','since',this.value)">`:""}</div>
+<div class="bar"><input placeholder="Cari…" value="${esc(f.q)}" onchange="gSet('${s}','q',this.value)">${c.sk?`<select onchange="gSet('${s}','st',this.value)">${[...(c.def=="Aktif"?["Aktif"]:[]),"Semua",...opts].map(x=>`<option ${f.st==x?"selected":""}>${x}</option>`).join("")}</select>`:""}${c.dk?`<label style="margin:0">Sejak</label>${dIn("since_"+s,f.since,"gSince('"+s+"')")}`:""}</div>
 ${rows.length?`<div class="tw"><table><tr>${c.cols.map(k=>`<th>${c.f.find(x=>x[0]==k)[1]}</th>`).join("")}${c.fl?"<th>Pengingat</th>":""}<th></th></tr>${rows.map(r=>`<tr>${c.cols.map(k=>`<td>${cell(c,k,r)}</td>`).join("")}${c.fl?`<td>${bf(c.fl(r))}</td>`:""}<td><button class="btn ghost sm" onclick="gForm('${s}','${r.id}')">Edit</button> <button class="btn ghost sm" onclick="gDel('${s}','${r.id}')">Hapus</button></td></tr>`).join("")}</table></div>`:`<div class="card empty">${mascot(70)}<p>Belum ada data yang cocok.</p></div>`}`}
 function gSet(s,k,v){fl(s)[k]=v;render()}
 function gForm(s,id){const c=G[s],r=D[s].find(x=>x.id==id)||{};
-dialog(`<h3>${id?"Edit data":c.a}</h3>`+c.f.map(([k,l,t,rq,o])=>`<label>${l}${rq?" *":""}</label>`+(t=="area"?`<textarea id="g_${k}" rows="4">${esc(r[k])}</textarea>`:t=="sel"?`<select id="g_${k}">${o.map(x=>`<option ${(r[k]||o[0])==x?"selected":""}>${x}</option>`).join("")}</select>`:`<input id="g_${k}" type="${t=="date"?"date":t=="text"?"text":"number"}" ${t=="num"||t=="rp"?'min="0"':""} value="${esc(r[k])}">`)).join("")+`<div class="acts"><button class="btn ghost" onclick="$('#dlg').close()">Batal</button><button class="btn" id="ok">Simpan</button></div>`);
+dialog(`<h3>${id?"Edit data":c.a}</h3>`+c.f.map(([k,l,t,rq,o])=>`<label>${l}${rq?" *":""}</label>`+(t=="area"?`<textarea id="g_${k}" rows="4">${esc(r[k])}</textarea>`:t=="sel"?`<select id="g_${k}">${o.map(x=>`<option ${(r[k]||o[0])==x?"selected":""}>${x}</option>`).join("")}</select>`:t=="date"?dIn("g_"+k,r[k]):`<input id="g_${k}" type="${t=="text"?"text":"number"}" ${t=="num"||t=="rp"?'min="0"':""} value="${esc(r[k])}">`)).join("")+`<div class="acts"><button class="btn ghost" onclick="$('#dlg').close()">Batal</button><button class="btn" id="ok">Simpan</button></div>`);
 $("#ok").onclick=async()=>{const o={};
-for(const [k,l,t,rq] of c.f){let v=$("#g_"+k).value;if(t!="sel"&&t!="area")v=v.trim();if((t=="num"||t=="rp")&&v!=="")v=+v;if(rq&&v==="")return toast(l+" wajib diisi");o[k]=v}
+for(const [k,l,t,rq] of c.f){let v=t=="date"?dVal("g_"+k):$("#g_"+k).value;if(t=="date"&&v===null)return toast(l+" tidak valid (format dd/mm/yyyy)");if(t!="sel"&&t!="area"&&t!="date")v=v.trim();if((t=="num"||t=="rp")&&v!=="")v=+v;if(rq&&v==="")return toast(l+" wajib diisi");o[k]=v}
 if(s=="tugas"&&o.status=="Selesai"&&!o.selesai)o.selesai=iso();
 await save(s,{...r,id:r.id||uid(),createdAt:r.createdAt||Date.now(),...o});$("#dlg").close();toast("Tersimpan ✓");render()}}
 function gDel(s,id){const c=G[s],r=D[s].find(x=>x.id==id);confirmDel(`Data "${esc(r[c.f.find(x=>x[2]=="text")[0]])}" akan dihapus.`,()=>remove(s,id))}
@@ -220,11 +220,11 @@ return `<div class="head"><h1>📦 Purchase Order</h1><button class="btn" onclic
 ${rows.length?`<div class="tw"><table><tr><th>No. PO</th><th>Tanggal</th><th>Vendor</th><th>Barang</th><th>ETA</th><th>Status</th><th></th></tr>${rows.map(r=>`<tr><td><b>${esc(r.no)}</b></td><td>${fd(r.tgl)}</td><td>${esc(r.vendor)}</td><td style="white-space:normal">${r.items.map(i=>`${esc(i.nama)}${i.spek?" ("+esc(i.spek)+")":""} ×${i.qty||0} ${esc(i.sat)}`).join("<br>")}</td><td>${fd(r.eta)}</td><td>${bd(r.status,r.status=="Sudah diterima"?"ok":r.status=="Dibatalkan"?"neu":"warn")} ${bf(poFlag(r))}</td><td><button class="btn ghost sm" onclick="poForm('${r.id}')">Edit</button> <button class="btn ghost sm" onclick="poDel('${r.id}')">Hapus</button></td></tr>`).join("")}</table></div>`:`<div class="card empty">${mascot(70)}<p>Belum ada PO yang cocok.</p></div>`}`}
 function drawIt(){$("#its").innerHTML=pi.map((x,i)=>`<div class="it"><input placeholder="Nama barang" value="${esc(x.nama)}" oninput="pi[${i}].nama=this.value"><input placeholder="Spesifikasi" value="${esc(x.spek)}" oninput="pi[${i}].spek=this.value"><input type="number" min="0" placeholder="Qty" value="${x.qty??""}" oninput="pi[${i}].qty=+this.value"><input placeholder="Satuan" value="${esc(x.sat)}" oninput="pi[${i}].sat=this.value"><button class="btn ghost sm" onclick="pi.splice(${i},1);drawIt()" aria-label="Hapus barang">✕</button></div>`).join("")}
 function poForm(id){const r=D.po.find(x=>x.id==id)||{tgl:iso(),status:PS[0],items:[{}]};pi=JSON.parse(JSON.stringify(r.items));
-const d=dialog(`<h3>${id?"Edit":"Tambah"} PO</h3><div class="row2"><div><label>Nomor PO *</label><input id="p1" value="${esc(r.no)}"></div><div><label>Tanggal pembuatan *</label><input type="date" id="p2" value="${r.tgl}"></div><div><label>Vendor *</label><input id="p3" value="${esc(r.vendor)}"></div><div><label>ETA</label><input type="date" id="p4" value="${r.eta||""}"></div></div><label>Status</label><select id="p5">${PS.map(x=>`<option ${r.status==x?"selected":""}>${x}</option>`).join("")}</select><label>Catatan</label><textarea id="p6" rows="2">${esc(r.cat)}</textarea><label>Daftar barang</label><div id="its"></div><button class="btn ghost sm" onclick="pi.push({});drawIt()">+ Tambah barang</button><div class="acts"><button class="btn ghost" onclick="$('#dlg').close()">Batal</button><button class="btn" id="ok">Simpan</button></div>`);d.className="w";drawIt();
-$("#ok").onclick=async()=>{const no=$("#p1").value.trim(),tgl=$("#p2").value,vendor=$("#p3").value.trim(),items=pi.filter(x=>x.nama&&x.nama.trim());
-if(!no||!tgl||!vendor)return toast("No. PO, tanggal, dan vendor wajib diisi");if(!items.length)return toast("Isi minimal satu barang");
+const d=dialog(`<h3>${id?"Edit":"Tambah"} PO</h3><div class="row2"><div><label>Nomor PO *</label><input id="p1" value="${esc(r.no)}"></div><div><label>Tanggal pembuatan *</label>${dIn("p2",r.tgl)}</div><div><label>Vendor *</label><input id="p3" value="${esc(r.vendor)}"></div><div><label>ETA</label>${dIn("p4",r.eta)}</div></div><label>Status</label><select id="p5">${PS.map(x=>`<option ${r.status==x?"selected":""}>${x}</option>`).join("")}</select><label>Catatan</label><textarea id="p6" rows="2">${esc(r.cat)}</textarea><label>Daftar barang</label><div id="its"></div><button class="btn ghost sm" onclick="pi.push({});drawIt()">+ Tambah barang</button><div class="acts"><button class="btn ghost" onclick="$('#dlg').close()">Batal</button><button class="btn" id="ok">Simpan</button></div>`);d.className="w";drawIt();
+$("#ok").onclick=async()=>{const no=$("#p1").value.trim(),tgl=dVal("p2"),vendor=$("#p3").value.trim(),items=pi.filter(x=>x.nama&&x.nama.trim());
+if(!no||!tgl||!vendor)return toast("No. PO, tanggal (dd/mm/yyyy), dan vendor wajib diisi");if(dVal("p4")===null)return toast("ETA tidak valid (dd/mm/yyyy)");if(!items.length)return toast("Isi minimal satu barang");
 if(D.po.some(x=>x.no==no&&x.id!=r.id))return toast("Nomor PO "+no+" sudah ada");
-await save("po",{...r,id:r.id||uid(),createdAt:r.createdAt||Date.now(),no,tgl,vendor,eta:$("#p4").value,status:$("#p5").value,cat:$("#p6").value.trim(),items});$("#dlg").close();toast("Tersimpan ✓");render()}}
+await save("po",{...r,id:r.id||uid(),createdAt:r.createdAt||Date.now(),no,tgl,vendor,eta:dVal("p4")||"",status:$("#p5").value,cat:$("#p6").value.trim(),items});$("#dlg").close();toast("Tersimpan ✓");render()}}
 function poDel(id){const r=D.po.find(x=>x.id==id);confirmDel(`PO ${esc(r.no)} beserta daftar barangnya akan dihapus.`,()=>remove("po",id))}
 
 /* ---------- ringkasan dashboard ---------- */
@@ -250,9 +250,13 @@ const _sv=save;save=async function(s,o){if(s=="log"){const k=katOf(o.ket);if(k)o
 const MON={januari:0,jan:0,january:0,februari:1,feb:1,february:1,maret:2,mar:2,march:2,april:3,apr:3,mei:4,may:4,juni:5,jun:5,june:5,juli:6,jul:6,july:6,agustus:7,agu:7,aug:7,august:7,september:8,sep:8,oktober:9,okt:9,oct:9,october:9,november:10,nov:10,desember:11,des:11,dec:11,december:11};
 function mk(y,m,d){const t=new Date(y,m,d);return t.getMonth()==m&&t.getDate()==d?y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0"):null}
 function pDate(v){if(v instanceof Date){if(isNaN(v))return null;v=new Date(v.getTime()+432e5);return mk(v.getFullYear(),v.getMonth(),v.getDate())}
-v=String(v??"").trim();if(!v)return"";let m=v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return mk(+m[1],+m[2]-1,+m[3]);
-m=v.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);if(m)return mk(+m[3]<100?2000+ +m[3]:+m[3],+m[2]-1,+m[1]);
-m=v.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);if(m&&MON[m[2].toLowerCase()]!=null)return mk(+m[3],MON[m[2].toLowerCase()],+m[1]);return null}
+if(typeof v=="number"&&v>20000&&v<80000){const d=new Date(Date.UTC(1899,11,30)+Math.round(v)*864e5);return mk(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())}
+v=String(v??"").replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g,"").replace(/\u00a0/g," ").replace(/^['`´]/,"").trim();if(!v)return"";
+if(/^\d{5}$/.test(v))return pDate(+v);
+let m=v.match(/^(\d{2})(\d{2})(\d{4})$/);if(m&&+m[3]>1990)return mk(+m[3],+m[2]-1,+m[1]);
+m=v.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return mk(+m[1],+m[2]-1,+m[3]);
+m=v.match(/(\d{1,2})\s*[\/\-.]\s*(\d{1,2})\s*[\/\-.]\s*(\d{4}|\d{2})(?!\d)/);if(m)return mk(+m[3]<100?2000+ +m[3]:+m[3],+m[2]-1,+m[1]);
+m=v.match(/(\d{1,2})[\s\-\/]+([A-Za-z]+)[\s\-\/,]+(\d{4})/);if(m&&MON[m[2].toLowerCase()]!=null)return mk(+m[3],MON[m[2].toLowerCase()],+m[1]);return null}
 const pNum=v=>{if(typeof v=="number")return v;const s=String(v??"").replace(/[^\d-]/g,"");return s===""||s=="-"?"":+s};
 const MK=[["m","Bulan","month",1],["y","Tahun","num",1],["saldo","Saldo awal","rp",1],["ket","Keterangan","text"]];
 const IMP={petty:{t:"Petty Cash",k:[["date","Tanggal","date",1],["ket","Keterangan","text",1],["cin","Cash In","rp"],["cout","Cash Out","rp"]]},emoney:{t:"E-Money Mobil",k:MK}};
@@ -263,12 +267,12 @@ return L.map(l=>{const o=[];let c="",q=0;for(const ch of l){if(ch=='"')q=!q;else
 function impBuild(s,raw){const K=IMP[s].k,low=x=>String(x??"").trim().toLowerCase();let rows=raw.filter(r=>r.some(c=>String(c??"").trim()!==""));
 let idx=K.map((_,i)=>i);const h=rows[0]?rows[0].map(low):[];
 const hm=K.map(([k,l])=>h.findIndex(x=>x.length>2&&(x==k||low(l).startsWith(x))));
-if(hm.some(i=>i>=0)){idx=hm;rows=rows.slice(1)}
+if(hm.some(i=>i>=0)){idx=hm.map((i,j)=>i>=0?i:(K[j][3]&&!hm.includes(j)?j:-1));rows=rows.slice(1)}else{const dc=K.findIndex(x=>x[2]=="date");if(dc>=0&&rows[0]&&!/\d/.test(String(rows[0][dc]??"")))rows=rows.slice(1)}
 const dk=o=>s=="emoney"?o.m+"|"+o.y:s=="po"?o.no:K.map(([k])=>o[k]??"").join("|"),seen=new Set(D[s].map(s=="po"?r=>r.no:dk)),out=[];let prev="";
 rows.forEach(r=>{const g=i=>i>=0?r[i]:"",o={},er=[];
 if(s=="log"&&/^\d{4}$/.test(String(g(idx[0])).trim())&&!String(g(idx[1])??"").trim())return;
 K.forEach(([k,l,t,rq,op],j)=>{let v=g(idx[j]);if(typeof v=="string")v=v.trim();
-if(t=="date"){let d=pDate(v);if(s=="log"&&j==0){if(d==="")d=prev;else if(d)prev=d}if(d===null)er.push(l+" tidak valid");v=d}
+if(t=="date"){let d=pDate(v);if(s=="log"&&j==0){if(d==="")d=prev;else if(d)prev=d}if(d===null)er.push(l+" tidak valid: “"+String(v??"").slice(0,25)+"”");v=d}
 else if(t=="num"||t=="rp")v=pNum(v);
 else if(t=="month"){const x=low(v),b=/^\d+$/.test(x)?+x-1:MON[x];if(b==null||b<0||b>11)er.push("Bulan tidak valid");v=b}
 else if(t=="sel"){if(v===""||v==null)v=op[0];else{const f=op.find(z=>low(z)==low(v));if(!f)er.push(l+" tidak dikenal");v=f}}
@@ -371,8 +375,8 @@ if(s=="emoney")return [nm,["Bulan","Tahun","Saldo awal","Keterangan"],[...D.emon
 if(s=="po")return [nm,["No. PO","Tanggal","Vendor","ETA","Status","Catatan","Barang","Spesifikasi","Qty","Satuan"],[...D.po].sort((a,c)=>a.tgl.localeCompare(c.tgl)).flatMap(r=>r.items.map(i=>[r.no,fd(r.tgl),r.vendor,r.eta?fd(r.eta):"",r.status,r.cat||"",i.nama,i.spek||"",i.qty??"",i.sat||""]))];
 const c=G[s];return [nm,c.f.map(x=>x[1]),D[s].map(r=>c.f.map(([k,l,t])=>{const v=r[k];return v==null||v===""?"":t=="date"?fd(v):v}))]}
 const EXPN=["petty","emoney","po","tugas","service","pajak","aktiva","perl","log"];
-function expMod(s){const m=modSheet(s);xlsxSave("NailongAdmin-"+m[0].replace(/\s+/g,"")+"-"+iso()+".xlsx",[m])}
-function expAll(){xlsxSave("NailongAdmin-SemuaData-"+iso()+".xlsx",EXPN.map(modSheet))}
+function expMod(s){const m=modSheet(s);xlsxSave("NailongAdmin-"+m[0].replace(/\s+/g,"")+"-"+fd(iso()).replace(/\//g,"-")+".xlsx",[m])}
+function expAll(){xlsxSave("NailongAdmin-SemuaData-"+fd(iso()).replace(/\//g,"-")+".xlsx",EXPN.map(modSheet))}
 function expRep(){xlsxSave(RP.mode=="bln"?"Laporan-Bulanan-"+RP.y+"-"+String(RP.m+1).padStart(2,"0")+".xlsx":"Laporan-Tahunan-"+RP.y+".xlsx",repData())}
 function exportBtn(){const h=document.querySelector("#main .head"),b=h&&h.querySelector("button");if(!b||!EXPN.includes(page))return;
 const w=document.createElement("div");w.style.cssText="display:flex;gap:8px;flex-wrap:wrap";const x=document.createElement("button");x.className="btn ghost";x.textContent="⬇️ Export Excel";x.onclick=()=>expMod(page);b.replaceWith(w);w.append(x,b)}
@@ -434,6 +438,12 @@ window.charGo=api.go;window.charEv=api.ev;addEventListener("resize",resize);resi
 if(!RM)(function loop(){requestAnimationFrame(loop);frame()})()
 }catch(e){}}
 addEventListener("load",init)})();
+
+/* ---------- Input tanggal dd/mm/yyyy ---------- */
+const dIn=(id,iso,oc)=>`<input id="${id}" data-d type="text" inputmode="numeric" maxlength="10" placeholder="dd/mm/yyyy" autocomplete="off" value="${iso?fd(iso):""}"${oc?` onchange="${oc}"`:""}>`;
+function dVal(id){const v=$("#"+id).value.trim();if(!v)return"";const m=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);return m?mk(+m[3],+m[2]-1,+m[1]):null}
+function gSince(s){const v=dVal("since_"+s);if(v===null)toast("Tanggal tidak valid (dd/mm/yyyy)");else gSet(s,"since",v)}
+document.addEventListener("input",e=>{const t=e.target;if(t.dataset&&t.dataset.d!==undefined){const d=t.value.replace(/\D/g,"").slice(0,8);t.value=d.length>4?d.slice(0,2)+"/"+d.slice(2,4)+"/"+d.slice(4):d.length>2?d.slice(0,2)+"/"+d.slice(2):d}});
 
 openDB().then(loadAll).then(()=>{D.aktiva.forEach(r=>{if(r.nominal==null&&r.harga!=null){r.nominal=r.harga;r.ppn=r.ppn||"Non-PPN"}})}).then(render);
 </script>
