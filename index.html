@@ -64,7 +64,9 @@ dialog{max-height:92vh;overflow:auto}dialog.w{width:min(680px,94vw)}
 @media (prefers-reduced-motion:reduce){.hello svg{animation:none}#toast{transition:none}}
 @media (max-width:820px){.app{grid-template-columns:1fr}nav{position:static;max-height:none;border-right:0;border-bottom:2px dashed var(--line)}main{padding:18px}}
 </style>
+<script src="config.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
 </head>
 <body>
@@ -82,19 +84,19 @@ const NAV=[["MAIN MENU",[["dash","🏠","Dashboard"],["petty","👛","Petty Cash
 ["VEHICLE MANAGEMENT",[["service","🔧","Service Kendaraan"],["pajak","🧾","Pajak Kendaraan"]]],
 ["OFFICE MANAGEMENT",[["aktiva","🏢","Aktiva Tetap"],["perl","🖇️","Perlengkapan Kantor"],["log","📝","Catatan Pemeliharaan"]]],
 ["REPORTING",[["lap","📊","Report Center"]]],
-["SETTINGS",[["imp","📥","Import dan Export"]]]];
+["SETTINGS",[["imp","📥","Import dan Export"],["sync","🔄","Sinkronisasi"]]]];
 
 /* ---------- storage: IndexedDB, falls back to memory ---------- */
 let db=null,persist=true;
-function openDB(){return new Promise(res=>{try{const r=indexedDB.open("nailong-admin",4);
-r.onupgradeneeded=()=>{for(const s of Object.keys(D))if(!r.result.objectStoreNames.contains(s))r.result.createObjectStore(s,{keyPath:"id"});if(r.result.objectStoreNames.contains("rotol"))r.result.deleteObjectStore("rotol")};
+function openDB(){return new Promise(res=>{try{const r=indexedDB.open("nailong-admin",5);
+r.onupgradeneeded=()=>{for(const s of Object.keys(D))if(!r.result.objectStoreNames.contains(s))r.result.createObjectStore(s,{keyPath:"id"});if(r.result.objectStoreNames.contains("rotol"))r.result.deleteObjectStore("rotol");if(!r.result.objectStoreNames.contains("_del"))r.result.createObjectStore("_del",{keyPath:"id"})};
 r.onsuccess=()=>{db=r.result;res()};r.onerror=()=>{persist=false;res()}}catch(e){persist=false;res()}})}
 const tx=(s,m)=>db.transaction(s,m).objectStore(s);
 const req=r=>new Promise((ok,no)=>{r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
 async function loadAll(){if(!db)return;for(const s of Object.keys(D)){try{D[s]=await req(tx(s,"readonly").getAll())}catch(e){persist=false}}}
 async function save(s,o){o.updatedAt=Date.now();o.synced=false;const i=D[s].findIndex(x=>x.id===o.id);i<0?D[s].push(o):D[s][i]=o;
-if(db)try{await req(tx(s,"readwrite").put(o))}catch(e){toast("Gagal menyimpan ke penyimpanan lokal")}}
-async function remove(s,id){D[s]=D[s].filter(x=>x.id!==id);if(db)try{await req(tx(s,"readwrite").delete(id))}catch(e){}}
+if(db)try{await req(tx(s,"readwrite").put(o))}catch(e){toast("Gagal menyimpan ke penyimpanan lokal")}if(window.schedSync)schedSync()}
+async function remove(s,id){D[s]=D[s].filter(x=>x.id!==id);if(db)try{await req(tx(s,"readwrite").delete(id));await req(tx("_del","readwrite").put({id,store:s,updatedAt:Date.now()}))}catch(e){}if(window.schedSync)schedSync()}
 const uid=()=>crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2);
 
 /* ---------- ui helpers ---------- */
@@ -444,6 +446,54 @@ const dIn=(id,iso,oc)=>`<input id="${id}" data-d type="text" inputmode="numeric"
 function dVal(id){const v=$("#"+id).value.trim();if(!v)return"";const m=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);return m?mk(+m[3],+m[2]-1,+m[1]):null}
 function gSince(s){const v=dVal("since_"+s);if(v===null)toast("Tanggal tidak valid (dd/mm/yyyy)");else gSet(s,"since",v)}
 document.addEventListener("input",e=>{const t=e.target;if(t.dataset&&t.dataset.d!==undefined){const d=t.value.replace(/\D/g,"").slice(0,8);t.value=d.length>4?d.slice(0,2)+"/"+d.slice(2,4)+"/"+d.slice(4):d.length>2?d.slice(0,2)+"/"+d.slice(2):d}});
+
+/* ---------- Sinkronisasi Supabase (offline-first, last-write-wins) ---------- */
+const SBC=()=>{const c=window.NAILONG_CFG||{};return{url:(c.url||localStorage.getItem("sb_url")||"").trim(),key:(c.key||localStorage.getItem("sb_key")||"").trim()}};
+let sb=null,syT=null;const SY={st:"idle",msg:"",last:+localStorage.getItem("sb_ok")||0,user:null,busy:false};
+function sbInit(){if(sb)return sb;const c=SBC();if(!c.url||!c.key||typeof supabase=="undefined")return null;
+sb=supabase.createClient(c.url,c.key,{auth:{persistSession:true,autoRefreshToken:true}});
+sb.auth.onAuthStateChange((e,se)=>{SY.user=se?se.user:null;if(SY.user)schedSync(300);if(page=="sync")render()});
+sb.auth.getSession().then(({data})=>{SY.user=data.session?data.session.user:null;if(SY.user)schedSync(500);if(page=="sync")render()});return sb}
+const idbPut=(s,o)=>db?req(tx(s,"readwrite").put(o)).catch(()=>{}):Promise.resolve();
+const idbDel=(s,id)=>db?req(tx(s,"readwrite").delete(id)).catch(()=>{}):Promise.resolve();
+function schedSync(ms){clearTimeout(syT);syT=setTimeout(()=>syncNow(),ms||1500)}
+async function applyRemote(x){const s=x.store;if(!D[s])return 0;const d=x.data||{},loc=D[s].find(r=>r.id===x.id),ts=d.updatedAt||0;
+if(x.deleted){if(loc&&(loc.updatedAt||0)<=ts){D[s]=D[s].filter(r=>r.id!==x.id);await idbDel(s,x.id);return 1}return 0}
+if(!loc||ts>(loc.updatedAt||0)){const r={...d,id:x.id,synced:true};if(loc)D[s][D[s].indexOf(loc)]=r;else D[s].push(r);await idbPut(s,r);return 1}return 0}
+async function syncNow(manual){if(SY.busy||!db)return;const c=sbInit();
+if(!c||!SY.user){if(manual)toast(c?"Belum masuk ke akun":"Supabase belum diatur");return}
+if(!navigator.onLine){SY.st="offline";if(manual)toast("Sedang offline");if(page=="sync")render();return}
+SY.busy=true;SY.st="sync";let ch=0;
+try{const rows=[];
+for(const s of Object.keys(D))D[s].filter(r=>!r.synced).forEach(r=>{const {synced,...d}=r;rows.push({id:r.id,store:s,data:d,deleted:false})});
+(await req(tx("_del","readonly").getAll())).forEach(x=>rows.push({id:x.id,store:x.store,data:{updatedAt:x.updatedAt},deleted:true}));
+for(let i=0;i<rows.length;i+=200){const {error}=await sb.from("records").upsert(rows.slice(i,i+200),{onConflict:"id"});if(error)throw error}
+for(const x of rows){if(x.deleted)await idbDel("_del",x.id);else{const r=D[x.store].find(y=>y.id===x.id);if(r&&r.updatedAt===x.data.updatedAt){r.synced=true;await idbPut(x.store,r)}}}
+const last=localStorage.getItem("sb_last")||"";let from=0,max=last;
+for(;;){let q=sb.from("records").select("id,store,data,deleted,synced_at").order("synced_at").order("id").range(from,from+999);if(last)q=q.gte("synced_at",last);
+const {data,error}=await q;if(error)throw error;for(const x of data){if(x.synced_at>max)max=x.synced_at;ch+=await applyRemote(x)}if(data.length<1000)break;from+=1000}
+if(max)localStorage.setItem("sb_last",max);SY.last=Date.now();localStorage.setItem("sb_ok",SY.last);SY.st="ok";SY.msg="";
+if(manual)toast(ch?ch+" perubahan diterima ✓":"Sudah sinkron ✓")}
+catch(e){SY.st="err";SY.msg=(e&&(e.message||e.details))||String(e);if(manual)toast("Sinkronisasi gagal")}
+finally{SY.busy=false;if(ch||page=="sync")render()}}
+async function sbLogin(){if(!sbInit())return toast(typeof supabase=="undefined"?"Pustaka Supabase belum termuat. Cek internet":"Isi URL dan kunci Supabase dulu");
+const e=$("#sbe").value.trim(),p=$("#sbp").value;if(!e||!p)return toast("Email dan password wajib diisi");
+const {error}=await sb.auth.signInWithPassword({email:e,password:p});if(error)return toast("Gagal masuk: "+error.message);toast("Berhasil masuk ✓")}
+async function sbLogout(){if(sb)await sb.auth.signOut();SY.user=null;SY.st="idle";render()}
+function sbSaveCfg(){localStorage.setItem("sb_url",$("#sbu").value.trim());localStorage.setItem("sb_key",$("#sbk").value.trim());sb=null;sbInit();toast("Pengaturan tersimpan ✓");render()}
+function syncPage(){const c=SBC(),un=Object.keys(D).reduce((a,s)=>a+D[s].filter(r=>!r.synced).length,0),ok=c.url&&c.key;
+const ST={idle:"Siap",sync:"Menyinkronkan…",ok:"Tersinkron",err:"Gagal",offline:"Offline"}[SY.st];
+const lt=SY.last?dd(SY.last)+" "+new Date(SY.last).toTimeString().slice(0,5):"belum pernah";
+return `<div class="head"><h1>🔄 Sinkronisasi</h1></div>
+<div class="grid" style="margin-bottom:16px"><div class="card stat"><span>Akun</span><b style="font-size:16px">${SY.user?esc(SY.user.email):"Belum masuk"}</b></div><div class="card stat"><span>Status</span><b>${ST}</b></div><div class="card stat"><span>Menunggu dikirim</span><b>${un}</b></div></div>
+${typeof supabase=="undefined"?`<div class="card" style="margin-bottom:16px;background:var(--peach)">Pustaka Supabase belum termuat. Sambungkan internet lalu muat ulang halaman.</div>`:""}
+<details class="card" style="margin-bottom:16px" ${ok?"":"open"}><summary><b>Pengaturan Supabase</b></summary><label>Project URL</label><input id="sbu" value="${esc(c.url)}" placeholder="https://xxxx.supabase.co"><label>Kunci anon atau publishable</label><input id="sbk" value="${esc(c.key)}"><div class="acts"><button class="btn" onclick="sbSaveCfg()">Simpan</button></div><p class="note">Jangan pernah memakai kunci service_role atau secret.</p></details>
+${ok&&!SY.user?`<div class="card" style="margin-bottom:16px"><h3>Masuk</h3><label>Email</label><input id="sbe" type="email" autocomplete="username"><label>Password</label><input id="sbp" type="password" autocomplete="current-password"><div class="acts"><button class="btn" onclick="sbLogin()">Masuk</button></div></div>`:""}
+${SY.user?`<div class="card"><div class="acts" style="justify-content:flex-start;margin-top:0"><button class="btn" onclick="syncNow(true)">Sinkronkan sekarang</button><button class="btn ghost" onclick="sbLogout()">Keluar</button></div><p class="note">Terakhir sinkron: ${lt}. Otomatis berjalan tiap 1 menit, setelah menyimpan data, dan saat kembali online.</p>${SY.st=="err"?`<p class="note" style="color:#C2410C">Error: ${esc(SY.msg)}</p>`:""}</div>`:""}`}
+addEventListener("online",()=>schedSync(500));
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)schedSync(500)});
+setInterval(()=>{if(!document.hidden)schedSync(100)},60000);
+addEventListener("load",()=>sbInit());
 
 openDB().then(loadAll).then(()=>{D.aktiva.forEach(r=>{if(r.nominal==null&&r.harga!=null){r.nominal=r.harga;r.ppn=r.ppn||"Non-PPN"}})}).then(render);
 </script>

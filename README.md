@@ -1,5 +1,4 @@
 # Nailong Admin
 
-Web app General Administration (PWA). Data tersimpan di browser pengguna (IndexedDB), bukan di repo ini.
-
-Buka lewat GitHub Pages, lalu pasang dengan ikon Install di Chrome atau Edge.
+Web app General Administration (PWA). Data tersimpan di browser dan dapat disinkronkan lewat Supabase pribadi.
+Panduan: lihat menu Sinkronisasi di aplikasi dan file supabase.sql.
