@@ -448,7 +448,7 @@ function gSince(s){const v=dVal("since_"+s);if(v===null)toast("Tanggal tidak val
 document.addEventListener("input",e=>{const t=e.target;if(t.dataset&&t.dataset.d!==undefined){const d=t.value.replace(/\D/g,"").slice(0,8);t.value=d.length>4?d.slice(0,2)+"/"+d.slice(2,4)+"/"+d.slice(4):d.length>2?d.slice(0,2)+"/"+d.slice(2):d}});
 
 /* ---------- Sinkronisasi Supabase (offline-first, last-write-wins) ---------- */
-const SBC=()=>{const c=window.NAILONG_CFG||{};return{url:(c.url||localStorage.getItem("sb_url")||"").trim(),key:(c.key||localStorage.getItem("sb_key")||"").trim()}};
+const SBC=()=>{const c=window.NAILONG_CFG||{};let u=(c.url||localStorage.getItem("sb_url")||"").trim();try{if(u)u=new URL(u).origin}catch(e){}return{url:u,key:(c.key||localStorage.getItem("sb_key")||"").trim()}};
 let sb=null,syT=null;const SY={st:"idle",msg:"",last:+localStorage.getItem("sb_ok")||0,user:null,busy:false};
 function sbInit(){if(sb)return sb;const c=SBC();if(!c.url||!c.key||typeof supabase=="undefined")return null;
 sb=supabase.createClient(c.url,c.key,{auth:{persistSession:true,autoRefreshToken:true}});
